@@ -1,27 +1,27 @@
 [
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/main.cpp",
-    "file": "src/main.cpp"
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/main.cpp",
+    "file": "cpp_backend/src/main.cpp"
   },
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/Bank.cpp",
-    "file": "src/Bank.cpp"
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/Bank.cpp",
+    "file": "cpp_backend/src/Bank.cpp"
   },
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/Database.cpp",
-    "file": "src/Database.cpp"
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/Database.cpp",
+    "file": "cpp_backend/src/Database.cpp"
   },
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/Utils.cpp",
-    "file": "src/Utils.cpp"
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/Utils.cpp",
+    "file": "cpp_backend/src/Utils.cpp"
   },
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c tests/test_algorithms.cpp",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c tests/test_algorithms.cpp",
     "file": "tests/test_algorithms.cpp"
   }
 ]

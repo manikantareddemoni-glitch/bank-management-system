@@ -2,5 +2,6 @@ CompileFlags:
   Compiler: "C:/Users/shekar/tools/w64devkit/bin/g++.exe"
   Add:
     - "-std=c++17"
-    - "-Iinclude"
+    - "-Icpp_backend/include"
+    - "-I./cpp_backend/include"
     - "-IC:/Users/shekar/tools/pgsql/include"

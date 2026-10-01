@@ -11,7 +11,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const LOCAL_DATA_PATH = path.join(__dirname, '..', 'data.json');
+const LOCAL_DATA_PATH = fs.existsSync(path.join(__dirname, '..', 'database', 'data.json'))
+    ? path.join(__dirname, '..', 'database', 'data.json')
+    : path.join(__dirname, '..', 'data.json');
 
 // Default initial seed data for local storage
 const defaultSeedData = {
@@ -84,7 +86,8 @@ function getConnectionString() {
     if (process.env.MONGODB_URI) {
         return process.env.MONGODB_URI;
     }
-    const configPath = path.join(__dirname, '..', 'config.txt');
+    const dbConfigPath = path.join(__dirname, '..', 'database', 'config.txt');
+    const configPath = fs.existsSync(dbConfigPath) ? dbConfigPath : path.join(__dirname, '..', 'config.txt');
     if (fs.existsSync(configPath)) {
         const lines = fs.readFileSync(configPath, 'utf8').split('\n');
         for (let line of lines) {

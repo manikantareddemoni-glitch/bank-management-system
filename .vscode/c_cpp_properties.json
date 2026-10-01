@@ -4,7 +4,7 @@
       "name": "Win32",
       "compilerPath": "C:/Users/shekar/tools/w64devkit/bin/g++.exe",
       "includePath": [
-        "${workspaceFolder}/include",
+        "${workspaceFolder}/cpp_backend/include",
         "C:/Users/shekar/tools/pgsql/include",
         "C:/Users/shekar/tools/w64devkit/include"
       ],
