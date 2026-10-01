@@ -8,11 +8,13 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-const rawApiBase = import.meta.env.VITE_API_BASE_URL;
-const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-const API_BASE = (rawApiBase && !rawApiBase.includes('<'))
+let base = (rawApiBase && !rawApiBase.includes('<'))
   ? rawApiBase
   : (isLocal ? 'http://localhost:5000/api' : 'https://bank-management-system-17my.onrender.com/api');
+
+if (base.endsWith('/')) base = base.slice(0, -1);
+if (!base.endsWith('/api')) base += '/api';
+const API_BASE = base;
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('accounts');
@@ -52,6 +54,12 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyData)
       });
+
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server is currently starting up on Render. Please wait ~15 seconds and try again.');
+      }
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Authentication failed');
 
