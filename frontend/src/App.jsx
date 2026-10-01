@@ -7,7 +7,8 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const rawApiBase = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = (rawApiBase && !rawApiBase.includes('<')) ? rawApiBase : 'http://localhost:5000/api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('accounts');
