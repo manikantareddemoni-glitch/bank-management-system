@@ -79,8 +79,17 @@ const TransactionSchema = new mongoose.Schema({
     txn_time: { type: String, required: true }
 }, { collection: 'transactions', timestamps: true });
 
+const UserSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    name: { type: String, required: true },
+    role: { type: String, default: 'manager' },
+    accountNo: { type: Number, default: 0 }
+}, { collection: 'users', timestamps: true });
+
 const CustomerModel = mongoose.model('Customer', CustomerSchema);
 const TransactionModel = mongoose.model('Transaction', TransactionSchema);
+const UserModel = mongoose.model('User', UserSchema);
 
 function getConnectionString() {
     if (process.env.MONGODB_URI) {
@@ -169,6 +178,101 @@ app.get('/api/health', async (req, res) => {
             message: 'Local Persistence Active (data.json).'
         });
     }
+});
+
+// Authentication Endpoints
+app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required.' });
+    }
+
+    const uLower = username.trim().toLowerCase();
+
+    // Default admin fallback check
+    if ((uLower === 'admin' || uLower === 'manager') && password === 'admin123') {
+        return res.json({
+            success: true,
+            user: { username: 'admin', name: 'System Bank Manager', role: 'manager', accountNo: 0 }
+        });
+    }
+
+    // Default customer demo fallback check
+    if (uLower === '1001' && password === 'demo123') {
+        return res.json({
+            success: true,
+            user: { username: '1001', name: 'Aarav Sharma', role: 'customer', accountNo: 1001 }
+        });
+    }
+
+    if (mongoose.connection.readyState === 1) {
+        try {
+            const foundUser = await UserModel.findOne({ username: new RegExp('^' + uLower + '$', 'i') }).lean();
+            if (foundUser && foundUser.password === password) {
+                return res.json({
+                    success: true,
+                    user: { username: foundUser.username, name: foundUser.name, role: foundUser.role, accountNo: foundUser.accountNo || 0 }
+                });
+            }
+        } catch (err) {
+            console.error("Auth DB query error:", err.message);
+        }
+    }
+
+    localData = loadLocalData();
+    if (!localData.users) {
+        localData.users = [
+            { username: 'admin', password: 'admin123', name: 'System Bank Manager', role: 'manager', accountNo: 0 },
+            { username: '1001', password: 'demo123', name: 'Aarav Sharma', role: 'customer', accountNo: 1001 }
+        ];
+        saveLocalData(localData);
+    }
+
+    const localUser = localData.users.find(u => u.username.toLowerCase() === uLower && u.password === password);
+    if (localUser) {
+        return res.json({
+            success: true,
+            user: { username: localUser.username, name: localUser.name, role: localUser.role, accountNo: localUser.accountNo || 0 }
+        });
+    }
+
+    return res.status(401).json({ error: 'Invalid username or password.' });
+});
+
+app.post('/api/auth/register', async (req, res) => {
+    const { username, password, name, role, accountNo } = req.body;
+    if (!username || !password || !name) {
+        return res.status(400).json({ error: 'Username, password, and name are required.' });
+    }
+
+    const uTrim = username.trim();
+    localData = loadLocalData();
+    if (!localData.users) localData.users = [];
+
+    if (localData.users.some(u => u.username.toLowerCase() === uTrim.toLowerCase())) {
+        return res.status(400).json({ error: 'Username already taken.' });
+    }
+
+    const newUser = {
+        username: uTrim,
+        password: password.trim(),
+        name: name.trim(),
+        role: role || 'manager',
+        accountNo: parseInt(accountNo, 10) || 0
+    };
+
+    localData.users.push(newUser);
+    saveLocalData(localData);
+
+    if (mongoose.connection.readyState === 1) {
+        try {
+            await UserModel.create(newUser);
+        } catch (err) {
+            console.error("MongoDB User Register error:", err.message);
+        }
+    }
+
+    res.json({ success: true, user: { username: newUser.username, name: newUser.name, role: newUser.role, accountNo: newUser.accountNo } });
 });
 
 // Load All Customers

@@ -3,7 +3,8 @@ import {
   Building2, Users, CreditCard, ArrowUpRight, ArrowDownLeft, 
   Search, Plus, RefreshCw, Trash2, Activity, ShieldCheck, 
   TrendingUp, CheckCircle2, AlertTriangle, Cpu, Play, Pause, RotateCcw,
-  Sparkles, DollarSign, Wallet, ArrowRight, Clock, Award
+  Sparkles, DollarSign, Wallet, ArrowRight, Clock, Award,
+  Lock, LogIn, LogOut, Eye, EyeOff, User, KeyRound, ShieldAlert
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -21,6 +22,53 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('none'); // 'none', 'asc', 'desc'
   const [highestOnly, setHighestOnly] = useState(false);
+
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('bank_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [authMode, setAuthMode] = useState('login');
+  const [authForm, setAuthForm] = useState({ username: '', password: '', name: '', role: 'manager', accountNo: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+
+  const handleAuthSubmit = async (e, customCreds = null) => {
+    if (e) e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+
+    const isLogin = authMode === 'login' || customCreds !== null;
+    const endpoint = isLogin ? `${API_BASE}/auth/login` : `${API_BASE}/auth/register`;
+    const bodyData = customCreds || (isLogin 
+      ? { username: authForm.username, password: authForm.password } 
+      : authForm);
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Authentication failed');
+
+      localStorage.setItem('bank_user', JSON.stringify(data.user));
+      setCurrentUser(data.user);
+      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('bank_user');
+    setCurrentUser(null);
+  };
   
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -264,6 +312,131 @@ export default function App() {
     c.phone.includes(searchTerm)
   );
 
+  if (!currentUser) {
+    return (
+      <div className="login-backdrop">
+        <div className="login-glow-1"></div>
+        <div className="login-glow-2"></div>
+
+        <div className="login-card">
+          <div className="login-header">
+            <div className="login-icon-box">
+              <Building2 size={32} />
+            </div>
+            <h2 className="login-title">Apex Bank Suite</h2>
+            <p className="login-subtitle">Secure Financial Portal Login</p>
+          </div>
+
+          <div className="auth-tabs">
+            <button 
+              className={`auth-tab-btn ${authMode === 'login' ? 'active' : ''}`}
+              onClick={() => { setAuthMode('login'); setAuthError(''); }}
+            >
+              Sign In
+            </button>
+            <button 
+              className={`auth-tab-btn ${authMode === 'register' ? 'active' : ''}`}
+              onClick={() => { setAuthMode('register'); setAuthError(''); }}
+            >
+              Register
+            </button>
+          </div>
+
+          {/* Quick Demo Logins */}
+          <div className="demo-credentials-box">
+            <div className="demo-title">
+              <KeyRound size={14} /> Quick Demo Logins
+            </div>
+            <div className="demo-buttons-grid">
+              <button 
+                type="button" 
+                className="demo-btn"
+                onClick={() => handleAuthSubmit(null, { username: 'admin', password: 'admin123' })}
+              >
+                <span>👨‍💼 Bank Manager</span>
+                <span style={{ fontSize: '0.72rem', color: '#a78bfa' }}>admin / admin123</span>
+              </button>
+              <button 
+                type="button" 
+                className="demo-btn"
+                onClick={() => handleAuthSubmit(null, { username: '1001', password: 'demo123' })}
+              >
+                <span>👤 Customer Portal</span>
+                <span style={{ fontSize: '0.72rem', color: '#34d399' }}>1001 / demo123</span>
+              </button>
+            </div>
+          </div>
+
+          {authError && (
+            <div style={{
+              background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)',
+              color: '#fda4af', padding: '12px 16px', borderRadius: '12px', marginBottom: '20px',
+              fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px'
+            }}>
+              <ShieldAlert size={18} />
+              <span>{authError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAuthSubmit}>
+            {authMode === 'register' && (
+              <div className="input-group" style={{ marginBottom: '16px' }}>
+                <label>Full Name</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Aarav Sharma"
+                  value={authForm.name}
+                  onChange={e => setAuthForm({ ...authForm, name: e.target.value })}
+                  required
+                />
+              </div>
+            )}
+
+            <div className="input-group" style={{ marginBottom: '16px' }}>
+              <label>Username / Account No</label>
+              <input 
+                type="text" 
+                placeholder={authMode === 'login' ? 'e.g. admin or 1001' : 'e.g. aarav123'}
+                value={authForm.username}
+                onChange={e => setAuthForm({ ...authForm, username: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="input-group" style={{ marginBottom: '24px' }}>
+              <label>Password</label>
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={authForm.password}
+                  onChange={e => setAuthForm({ ...authForm, password: e.target.value })}
+                  required
+                  style={{ width: '100%', paddingRight: '42px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer'
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="action-btn btn-primary" style={{ width: '100%', padding: '14px' }} disabled={authLoading}>
+              {authLoading ? <RefreshCw className="spin-icon" size={18} /> : <LogIn size={18} />}
+              <span>{authMode === 'login' ? 'Sign In to Portal' : 'Create Account'}</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-layout">
       {/* Toast Alert */}
@@ -305,13 +478,41 @@ export default function App() {
           <button className={`tab-btn ${activeTab === 'operations' ? 'active' : ''}`} onClick={() => setActiveTab('operations')}>
             <Wallet size={18} /> Money Studio
           </button>
-          <button className={`tab-btn ${activeTab === 'dsa' ? 'active' : ''}`} onClick={() => setActiveTab('dsa')}>
+          <button className={`tab-btn ${activeTab === 'visualizer' ? 'active' : ''}`} onClick={() => setActiveTab('visualizer')}>
             <Cpu size={18} /> DSA Visualizer
           </button>
-          <button className={`tab-btn ${activeTab === 'audit' ? 'active' : ''}`} onClick={() => setActiveTab('audit')}>
+          <button className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
             <Activity size={18} /> Audit History
           </button>
         </nav>
+
+        {/* User Profile & Logout */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: 'rgba(255, 255, 255, 0.05)', padding: '6px 14px', borderRadius: '14px',
+            border: '1px solid rgba(255, 255, 255, 0.08)'
+          }}>
+            <div className="avatar-circle" style={{ width: '32px', height: '32px', fontSize: '0.8rem' }}>
+              {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>{currentUser.name}</span>
+              <span style={{ fontSize: '0.7rem', color: '#a78bfa', textTransform: 'capitalize' }}>
+                {currentUser.role === 'manager' ? '👨‍💼 Bank Manager' : `👤 Account #${currentUser.accountNo}`}
+              </span>
+            </div>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="action-btn"
+            style={{ padding: '8px 14px', background: 'rgba(244, 63, 94, 0.12)', color: '#fda4af', border: '1px solid rgba(244, 63, 94, 0.25)' }}
+            title="Sign Out"
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </div>
       </header>
 
       {/* Analytics Dashboard Grid */}
