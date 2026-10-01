@@ -8,7 +8,10 @@ import {
 import confetti from 'canvas-confetti';
 
 const rawApiBase = import.meta.env.VITE_API_BASE_URL;
-const API_BASE = (rawApiBase && !rawApiBase.includes('<')) ? rawApiBase : 'http://localhost:5000/api';
+const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const API_BASE = (rawApiBase && !rawApiBase.includes('<'))
+  ? rawApiBase
+  : (isLocal ? 'http://localhost:5000/api' : 'https://bank-management-system-17my.onrender.com/api');
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('accounts');
