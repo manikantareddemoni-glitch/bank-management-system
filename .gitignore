@@ -1,0 +1,37 @@
+# Environment and secrets
+config.txt
+.env
+.env.local
+.env.*.local
+
+# Node modules & build artifacts
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+frontend/dist/
+dist/
+
+# Build directories
+build/
+build-*/
+bin/
+out/
+.vs/
+
+# Object files and binaries
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Test binaries
+test_algorithms.exe
+bank_app.exe
+
+# Vercel / Render temporary files
+.vercel
+.render

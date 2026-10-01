@@ -1,0 +1,27 @@
+[
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/main.cpp",
+    "file": "src/main.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/Bank.cpp",
+    "file": "src/Bank.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/Database.cpp",
+    "file": "src/Database.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c src/Utils.cpp",
+    "file": "src/Utils.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Iinclude -IC:/Users/shekar/tools/pgsql/include -c tests/test_algorithms.cpp",
+    "file": "tests/test_algorithms.cpp"
+  }
+]

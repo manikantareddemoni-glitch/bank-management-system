@@ -1,0 +1,12 @@
+{
+  "clangd.arguments": [
+    "--compile-commands-dir=${workspaceFolder}",
+    "--header-insertion=never",
+    "-j=4"
+  ],
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}/include"
+  ],
+  "C_Cpp.errorSquiggles": "Disabled",
+  "clangd.enable": true
+}

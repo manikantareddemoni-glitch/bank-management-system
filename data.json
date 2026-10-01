@@ -1,0 +1,161 @@
+{
+  "customers": [
+    {
+      "id": 1,
+      "accountNo": 1001,
+      "name": "Aarav Sharma",
+      "phone": "9876543210",
+      "email": "aarav.sharma@example.com",
+      "accountType": "SAVINGS",
+      "balanceRupees": "25000.50",
+      "balancePaise": 2500050,
+      "createdAt": "2026-01-01 10:00:00"
+    },
+    {
+      "id": 2,
+      "accountNo": 1002,
+      "name": "Priya Patel",
+      "phone": "9823456789",
+      "email": "priya.patel@example.com",
+      "accountType": "SAVINGS",
+      "balanceRupees": "1200.00",
+      "balancePaise": 120000,
+      "createdAt": "2026-01-01 10:05:00"
+    },
+    {
+      "id": 3,
+      "accountNo": 1003,
+      "name": "Rohan Verma",
+      "phone": "9712345678",
+      "email": "rohan.verma@example.com",
+      "accountType": "CURRENT",
+      "balanceRupees": "75000.00",
+      "balancePaise": 7500000,
+      "createdAt": "2026-01-01 10:10:00"
+    },
+    {
+      "id": 4,
+      "accountNo": 1004,
+      "name": "Ananya Iyer",
+      "phone": "9601234567",
+      "email": "ananya.iyer@example.com",
+      "accountType": "SAVINGS",
+      "balanceRupees": "650.75",
+      "balancePaise": 65075,
+      "createdAt": "2026-01-01 10:15:00"
+    },
+    {
+      "id": 5,
+      "accountNo": 1005,
+      "name": "Vikram Malhotra",
+      "phone": "9543210987",
+      "email": "vikram.m@example.com",
+      "accountType": "CURRENT",
+      "balanceRupees": "150000.00",
+      "balancePaise": 15000000,
+      "createdAt": "2026-01-01 10:20:00"
+    },
+    {
+      "id": 6,
+      "accountNo": 1006,
+      "name": "Sanya Gupta",
+      "phone": "9432109876",
+      "email": "sanya.gupta@example.com",
+      "accountType": "SAVINGS",
+      "balanceRupees": "500.00",
+      "balancePaise": 50000,
+      "createdAt": "2026-01-01 10:25:00"
+    },
+    {
+      "id": 7,
+      "accountNo": 1007,
+      "name": "Test Localhost User",
+      "phone": "9112233445",
+      "email": "test@localhost.com",
+      "accountType": "SAVINGS",
+      "balanceRupees": "1000.00",
+      "balancePaise": 100000,
+      "createdAt": "2026-10-01 08:12:15"
+    },
+    {
+      "id": 8,
+      "accountNo": 1008,
+      "name": "manikanta reddemoni",
+      "phone": "7981007386",
+      "email": "reddemonimanikanta@gmail.com",
+      "accountType": "CURRENT",
+      "balanceRupees": "100.00",
+      "balancePaise": 10000,
+      "createdAt": "2026-10-01 08:38:12"
+    }
+  ],
+  "transactions": [
+    {
+      "txn_id": 1,
+      "account_no": 1001,
+      "txn_type": "OPENING",
+      "amount": "25000.50",
+      "balance_after": "25000.50",
+      "txn_time": "2026-01-01 10:00:00"
+    },
+    {
+      "txn_id": 2,
+      "account_no": 1002,
+      "txn_type": "OPENING",
+      "amount": "1200.00",
+      "balance_after": "1200.00",
+      "txn_time": "2026-01-01 10:05:00"
+    },
+    {
+      "txn_id": 3,
+      "account_no": 1003,
+      "txn_type": "OPENING",
+      "amount": "75000.00",
+      "balance_after": "75000.00",
+      "txn_time": "2026-01-01 10:10:00"
+    },
+    {
+      "txn_id": 4,
+      "account_no": 1004,
+      "txn_type": "OPENING",
+      "amount": "650.75",
+      "balance_after": "650.75",
+      "txn_time": "2026-01-01 10:15:00"
+    },
+    {
+      "txn_id": 5,
+      "account_no": 1005,
+      "txn_type": "OPENING",
+      "amount": "150000.00",
+      "balance_after": "150000.00",
+      "txn_time": "2026-01-01 10:20:00"
+    },
+    {
+      "txn_id": 6,
+      "account_no": 1006,
+      "txn_type": "OPENING",
+      "amount": "500.00",
+      "balance_after": "500.00",
+      "txn_time": "2026-01-01 10:25:00"
+    },
+    {
+      "txn_id": 7,
+      "account_no": 1007,
+      "txn_type": "OPENING",
+      "amount": "1000.00",
+      "balance_after": "1000.00",
+      "txn_time": "2026-10-01 08:12:15"
+    },
+    {
+      "txn_id": 8,
+      "account_no": 1008,
+      "txn_type": "OPENING",
+      "amount": "100.00",
+      "balance_after": "100.00",
+      "txn_time": "2026-10-01 08:38:12"
+    }
+  ],
+  "nextId": 10,
+  "nextAccNo": 1010,
+  "nextTxnId": 10
+}

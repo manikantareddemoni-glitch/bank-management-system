@@ -1,0 +1,397 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+require('dotenv').config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const LOCAL_DATA_PATH = path.join(__dirname, '..', 'data.json');
+
+// Default initial seed data for local storage
+const defaultSeedData = {
+    customers: [
+        { id: 1, accountNo: 1001, name: 'Aarav Sharma',    phone: '9876543210', email: 'aarav.sharma@example.com',    accountType: 'SAVINGS', balanceRupees: '25000.50', balancePaise: 2500050, createdAt: '2026-01-01 10:00:00' },
+        { id: 2, accountNo: 1002, name: 'Priya Patel',     phone: '9823456789', email: 'priya.patel@example.com',     accountType: 'SAVINGS', balanceRupees:  '1200.00', balancePaise:  120000, createdAt: '2026-01-01 10:05:00' },
+        { id: 3, accountNo: 1003, name: 'Rohan Verma',     phone: '9712345678', email: 'rohan.verma@example.com',     accountType: 'CURRENT', balanceRupees: '75000.00', balancePaise: 7500000, createdAt: '2026-01-01 10:10:00' },
+        { id: 4, accountNo: 1004, name: 'Ananya Iyer',     phone: '9601234567', email: 'ananya.iyer@example.com',     accountType: 'SAVINGS', balanceRupees:   '650.75', balancePaise:   65075, createdAt: '2026-01-01 10:15:00' },
+        { id: 5, accountNo: 1005, name: 'Vikram Malhotra', phone: '9543210987', email: 'vikram.m@example.com',        accountType: 'CURRENT', balanceRupees: '150000.00', balancePaise: 15000000, createdAt: '2026-01-01 10:20:00' },
+        { id: 6, accountNo: 1006, name: 'Sanya Gupta',     phone: '9432109876', email: 'sanya.gupta@example.com',    accountType: 'SAVINGS', balanceRupees:   '500.00', balancePaise:   50000, createdAt: '2026-01-01 10:25:00' }
+    ],
+    transactions: [
+        { txn_id: 1, account_no: 1001, txn_type: 'OPENING', amount: '25000.50', balance_after: '25000.50', txn_time: '2026-01-01 10:00:00' },
+        { txn_id: 2, account_no: 1002, txn_type: 'OPENING', amount:  '1200.00', balance_after:  '1200.00', txn_time: '2026-01-01 10:05:00' },
+        { txn_id: 3, account_no: 1003, txn_type: 'OPENING', amount: '75000.00', balance_after: '75000.00', txn_time: '2026-01-01 10:10:00' },
+        { txn_id: 4, account_no: 1004, txn_type: 'OPENING', amount:   '650.75', balance_after:   '650.75', txn_time: '2026-01-01 10:15:00' },
+        { txn_id: 5, account_no: 1005, txn_type: 'OPENING', amount: '150000.00', balance_after: '150000.00', txn_time: '2026-01-01 10:20:00' },
+        { txn_id: 6, account_no: 1006, txn_type: 'OPENING', amount:   '500.00', balance_after:   '500.00', txn_time: '2026-01-01 10:25:00' }
+    ],
+    nextId: 7,
+    nextAccNo: 1007,
+    nextTxnId: 7
+};
+
+function loadLocalData() {
+    if (fs.existsSync(LOCAL_DATA_PATH)) {
+        try {
+            const raw = fs.readFileSync(LOCAL_DATA_PATH, 'utf8');
+            return JSON.parse(raw);
+        } catch (e) {
+            console.error("Error reading local data.json, resetting:", e);
+        }
+    }
+    fs.writeFileSync(LOCAL_DATA_PATH, JSON.stringify(defaultSeedData, null, 2));
+    return defaultSeedData;
+}
+
+function saveLocalData(data) {
+    fs.writeFileSync(LOCAL_DATA_PATH, JSON.stringify(data, null, 2));
+}
+
+let localData = loadLocalData();
+
+// MongoDB Mongoose Schemas & Models
+const CustomerSchema = new mongoose.Schema({
+    id: { type: Number, required: true, unique: true },
+    accountNo: { type: Number, required: true, unique: true },
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    email: { type: String, default: '' },
+    accountType: { type: String, required: true },
+    balanceRupees: { type: String, required: true },
+    balancePaise: { type: Number, required: true },
+    createdAt: { type: String, required: true }
+}, { collection: 'customers', timestamps: true });
+
+const TransactionSchema = new mongoose.Schema({
+    txn_id: { type: Number, required: true, unique: true },
+    account_no: { type: Number, required: true },
+    txn_type: { type: String, required: true },
+    amount: { type: String, required: true },
+    balance_after: { type: String, required: true },
+    txn_time: { type: String, required: true }
+}, { collection: 'transactions', timestamps: true });
+
+const CustomerModel = mongoose.model('Customer', CustomerSchema);
+const TransactionModel = mongoose.model('Transaction', TransactionSchema);
+
+function getConnectionString() {
+    if (process.env.MONGODB_URI) {
+        return process.env.MONGODB_URI;
+    }
+    const configPath = path.join(__dirname, '..', 'config.txt');
+    if (fs.existsSync(configPath)) {
+        const lines = fs.readFileSync(configPath, 'utf8').split('\n');
+        for (let line of lines) {
+            line = line.trim();
+            if (line && !line.startsWith('#') && (line.startsWith('mongodb://') || line.startsWith('mongodb+srv://'))) {
+                return line;
+            }
+        }
+    }
+    return "mongodb+srv://System:@cluster0.n9s4euu.mongodb.net/apex_bank?retryWrites=true&w=majority";
+}
+
+async function connectMongoDB() {
+    const connStr = getConnectionString();
+    try {
+        await mongoose.connect(connStr, { serverSelectionTimeoutMS: 4000 });
+        console.log("Connected to MongoDB Atlas!");
+        
+        // Initial sync of existing customers if collection is empty
+        const count = await CustomerModel.countDocuments();
+        if (count === 0 && localData.customers.length > 0) {
+            console.log("Seeding MongoDB with local data.json records...");
+            await CustomerModel.insertMany(localData.customers);
+            await TransactionModel.insertMany(localData.transactions);
+        }
+    } catch (err) {
+        console.log("MongoDB Atlas not connected (Using Localhost data.json):", err.message);
+    }
+}
+
+connectMongoDB();
+
+function parseMoneyToPaise(inputStr) {
+    if (typeof inputStr === 'number') inputStr = inputStr.toString();
+    if (!inputStr) return null;
+    let str = inputStr.trim();
+    if (str.startsWith('-')) return null;
+    let dotPos = str.indexOf('.');
+    let rupeesStr = '', paiseStr = '';
+    if (dotPos === -1) {
+        rupeesStr = str;
+        paiseStr = '00';
+    } else {
+        if (str.indexOf('.', dotPos + 1) !== -1) return null;
+        rupeesStr = str.substring(0, dotPos);
+        paiseStr = str.substring(dotPos + 1);
+        if (paiseStr.length === 0) paiseStr = '00';
+        else if (paiseStr.length === 1) paiseStr += '0';
+        else if (paiseStr.length > 2) return null;
+    }
+    if (!rupeesStr) rupeesStr = '0';
+    if (!/^\d+$/.test(rupeesStr) || !/^\d+$/.test(paiseStr)) return null;
+    return Number((BigInt(rupeesStr) * 100n) + BigInt(paiseStr));
+}
+
+function formatPaiseToRupees(paiseVal) {
+    const isNeg = paiseVal < 0;
+    const absPaise = Math.abs(paiseVal);
+    const rupees = Math.floor(absPaise / 100);
+    const remainingPaise = absPaise % 100;
+    const paiseFormatted = remainingPaise < 10 ? '0' + remainingPaise : remainingPaise;
+    return `${isNeg ? '-' : ''}${rupees}.${paiseFormatted}`;
+}
+
+// REST API Endpoints
+
+app.get('/api/health', async (req, res) => {
+    const isConnected = mongoose.connection.readyState === 1;
+    if (isConnected) {
+        return res.json({
+            connected: true,
+            mode: 'Dual Storage (Localhost + MongoDB Atlas Sync)',
+            message: 'Connected to MongoDB Atlas Cluster'
+        });
+    } else {
+        return res.json({
+            connected: false,
+            mode: 'Localhost Persistent Storage',
+            message: 'Localhost Persistence Active (data.json).'
+        });
+    }
+});
+
+// Load All Customers
+app.get('/api/customers', async (req, res) => {
+    if (mongoose.connection.readyState === 1) {
+        try {
+            const dbCusts = await CustomerModel.find().sort({ accountNo: 1 }).lean();
+            if (dbCusts.length > 0) {
+                return res.json(dbCusts);
+            }
+        } catch (err) {
+            console.log("Serving from Localhost data.json:", err.message);
+        }
+    }
+    localData = loadLocalData();
+    res.json(localData.customers);
+});
+
+// Add Customer Account
+app.post('/api/customers', async (req, res) => {
+    const { name, phone, email, accountType, openingDeposit } = req.body;
+
+    if (!name || !phone || !accountType) {
+        return res.status(400).json({ error: 'Name, phone, and accountType are required.' });
+    }
+    if (phone.length !== 10 || !/^\d+$/.test(phone)) {
+        return res.status(400).json({ error: 'Phone number must be exactly 10 digits.' });
+    }
+
+    const openingPaise = parseMoneyToPaise(openingDeposit);
+    if (openingPaise === null || openingPaise <= 0) {
+        return res.status(400).json({ error: 'Invalid opening deposit amount.' });
+    }
+
+    if (accountType === 'SAVINGS' && openingPaise < 50000) {
+        return res.status(400).json({ error: 'SAVINGS account requires an initial deposit of at least Rs. 500.00.' });
+    }
+
+    localData = loadLocalData();
+    if (localData.customers.some(c => c.phone === phone.trim())) {
+        return res.status(400).json({ error: 'Phone number already registered.' });
+    }
+
+    const newId = localData.nextId || (localData.customers.length + 1);
+    localData.nextId = newId + 1;
+    const newAccNo = localData.nextAccNo++;
+    const balStr = formatPaiseToRupees(openingPaise);
+    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+    const newCust = {
+        id: newId,
+        accountNo: newAccNo,
+        name: name.trim(),
+        phone: phone.trim(),
+        email: (email || '').trim(),
+        accountType,
+        balanceRupees: balStr,
+        balancePaise: openingPaise,
+        createdAt: timeStr
+    };
+
+    const newTxn = {
+        txn_id: localData.nextTxnId++,
+        account_no: newAccNo,
+        txn_type: 'OPENING',
+        amount: balStr,
+        balance_after: balStr,
+        txn_time: timeStr
+    };
+
+    localData.customers.push(newCust);
+    localData.transactions.push(newTxn);
+    saveLocalData(localData);
+
+    if (mongoose.connection.readyState === 1) {
+        try {
+            await CustomerModel.create(newCust);
+            await TransactionModel.create(newTxn);
+        } catch (err) {
+            console.error("MongoDB Sync Error on Insert:", err.message);
+        }
+    }
+
+    res.json({ success: true, accountNo: newAccNo, message: `Account created! ID: ${newId}, Account No: ${newAccNo}` });
+});
+
+// Deposit Funds
+app.post('/api/deposit', async (req, res) => {
+    const { accountNo, amount } = req.body;
+    const accNo = parseInt(accountNo, 10);
+    const amtPaise = parseMoneyToPaise(amount);
+
+    if (!accNo || !amtPaise || amtPaise <= 0) {
+        return res.status(400).json({ error: 'Invalid account number or deposit amount.' });
+    }
+
+    localData = loadLocalData();
+    const target = localData.customers.find(c => c.accountNo === accNo);
+    if (!target) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+
+    target.balancePaise += amtPaise;
+    target.balanceRupees = formatPaiseToRupees(target.balancePaise);
+    const amtStr = formatPaiseToRupees(amtPaise);
+    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+    const newTxn = {
+        txn_id: localData.nextTxnId++,
+        account_no: accNo,
+        txn_type: 'DEPOSIT',
+        amount: amtStr,
+        balance_after: target.balanceRupees,
+        txn_time: timeStr
+    };
+
+    localData.transactions.push(newTxn);
+    saveLocalData(localData);
+
+    if (mongoose.connection.readyState === 1) {
+        try {
+            await CustomerModel.updateOne(
+                { accountNo: accNo },
+                { balanceRupees: target.balanceRupees, balancePaise: target.balancePaise }
+            );
+            await TransactionModel.create(newTxn);
+        } catch (err) {
+            console.error("MongoDB Sync Error on Deposit:", err.message);
+        }
+    }
+
+    res.json({ success: true, newBalance: target.balanceRupees, message: `Deposit saved! New Balance: Rs. ${target.balanceRupees}` });
+});
+
+// Withdraw Funds
+app.post('/api/withdraw', async (req, res) => {
+    const { accountNo, amount } = req.body;
+    const accNo = parseInt(accountNo, 10);
+    const amtPaise = parseMoneyToPaise(amount);
+
+    if (!accNo || !amtPaise || amtPaise <= 0) {
+        return res.status(400).json({ error: 'Invalid account number or withdrawal amount.' });
+    }
+
+    localData = loadLocalData();
+    const target = localData.customers.find(c => c.accountNo === accNo);
+    if (!target) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+
+    if (amtPaise > target.balancePaise) {
+        return res.status(400).json({ error: 'Withdrawal rejected: Insufficient balance.' });
+    }
+
+    const newBalPaise = target.balancePaise - amtPaise;
+    if (target.accountType === 'SAVINGS' && newBalPaise < 50000) {
+        return res.status(400).json({ error: 'Withdrawal rejected: SAVINGS balance cannot drop below Rs. 500.00.' });
+    }
+
+    target.balancePaise = newBalPaise;
+    target.balanceRupees = formatPaiseToRupees(newBalPaise);
+    const amtStr = formatPaiseToRupees(amtPaise);
+    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+    const newTxn = {
+        txn_id: localData.nextTxnId++,
+        account_no: accNo,
+        txn_type: 'WITHDRAW',
+        amount: amtStr,
+        balance_after: target.balanceRupees,
+        txn_time: timeStr
+    };
+
+    localData.transactions.push(newTxn);
+    saveLocalData(localData);
+
+    if (mongoose.connection.readyState === 1) {
+        try {
+            await CustomerModel.updateOne(
+                { accountNo: accNo },
+                { balanceRupees: target.balanceRupees, balancePaise: target.balancePaise }
+            );
+            await TransactionModel.create(newTxn);
+        } catch (err) {
+            console.error("MongoDB Sync Error on Withdraw:", err.message);
+        }
+    }
+
+    res.json({ success: true, newBalance: target.balanceRupees, message: `Withdrawal saved! New Balance: Rs. ${target.balanceRupees}` });
+});
+
+// Delete Account
+app.delete('/api/customers/:accountNo', async (req, res) => {
+    const accNo = parseInt(req.params.accountNo, 10);
+
+    localData = loadLocalData();
+    const idx = localData.customers.findIndex(c => c.accountNo === accNo);
+    if (idx === -1) return res.status(404).json({ error: 'Account not found.' });
+
+    localData.customers.splice(idx, 1);
+    localData.transactions = localData.transactions.filter(t => t.account_no !== accNo);
+    saveLocalData(localData);
+
+    if (mongoose.connection.readyState === 1) {
+        try {
+            await CustomerModel.deleteOne({ accountNo: accNo });
+            await TransactionModel.deleteMany({ account_no: accNo });
+        } catch (err) {
+            console.error("MongoDB Sync Error on Delete:", err.message);
+        }
+    }
+
+    res.json({ success: true, message: `Account ${accNo} deleted!` });
+});
+
+// View Transactions
+app.get('/api/transactions/:accountNo', async (req, res) => {
+    const accNo = parseInt(req.params.accountNo, 10);
+    if (mongoose.connection.readyState === 1) {
+        try {
+            const dbTxns = await TransactionModel.find({ account_no: accNo }).sort({ txn_id: 1 }).lean();
+            if (dbTxns.length > 0) return res.json(dbTxns);
+        } catch (err) {}
+    }
+    localData = loadLocalData();
+    const txns = localData.transactions.filter(t => t.account_no === accNo);
+    res.json(txns);
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Node.js Bank Server running on port ${PORT} with MongoDB Atlas & Localhost Persistence.`);
+});

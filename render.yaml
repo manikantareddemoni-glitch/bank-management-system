@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: bank-management-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://System:System@cluster0.n9s4euu.mongodb.net/apex_bank?retryWrites=true&w=majority
+      - key: PORT
+        value: 5000
