@@ -97,7 +97,7 @@ function getConnectionString() {
             }
         }
     }
-    return "mongodb+srv://System:@cluster0.n9s4euu.mongodb.net/apex_bank?retryWrites=true&w=majority";
+    return "mongodb+srv://System:System@cluster0.n9s4euu.mongodb.net/apex_bank?retryWrites=true&w=majority";
 }
 
 async function connectMongoDB() {
@@ -159,14 +159,14 @@ app.get('/api/health', async (req, res) => {
     if (isConnected) {
         return res.json({
             connected: true,
-            mode: 'Dual Storage (Localhost + MongoDB Atlas Sync)',
+            mode: 'MongoDB Atlas Active',
             message: 'Connected to MongoDB Atlas Cluster'
         });
     } else {
         return res.json({
             connected: false,
-            mode: 'Localhost Persistent Storage',
-            message: 'Localhost Persistence Active (data.json).'
+            mode: 'Local Data Active (data.json)',
+            message: 'Local Persistence Active (data.json).'
         });
     }
 });
