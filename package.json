@@ -1,0 +1,9 @@
+{
+  "name": "bank-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix 1_frontend run build",
+    "dev": "npm --prefix 1_frontend run dev"
+  }
+}
