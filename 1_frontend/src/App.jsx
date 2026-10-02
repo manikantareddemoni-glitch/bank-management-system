@@ -7,6 +7,8 @@ import {
   Lock, LogIn, LogOut, Eye, EyeOff, User, KeyRound, ShieldAlert
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import LoginPage from './components/LoginPage';
+
 
 let base = (rawApiBase && !rawApiBase.includes('<'))
   ? rawApiBase
@@ -321,128 +323,7 @@ export default function App() {
   );
 
   if (!currentUser) {
-    return (
-      <div className="login-backdrop">
-        <div className="login-glow-1"></div>
-        <div className="login-glow-2"></div>
-
-        <div className="login-card">
-          <div className="login-header">
-            <div className="login-icon-box">
-              <Building2 size={32} />
-            </div>
-            <h2 className="login-title">Apex Bank Suite</h2>
-            <p className="login-subtitle">Secure Financial Portal Login</p>
-          </div>
-
-          <div className="auth-tabs">
-            <button 
-              className={`auth-tab-btn ${authMode === 'login' ? 'active' : ''}`}
-              onClick={() => { setAuthMode('login'); setAuthError(''); }}
-            >
-              Sign In
-            </button>
-            <button 
-              className={`auth-tab-btn ${authMode === 'register' ? 'active' : ''}`}
-              onClick={() => { setAuthMode('register'); setAuthError(''); }}
-            >
-              Register
-            </button>
-          </div>
-
-          {/* Quick Demo Logins */}
-          <div className="demo-credentials-box">
-            <div className="demo-title">
-              <KeyRound size={14} /> Quick Demo Logins
-            </div>
-            <div className="demo-buttons-grid">
-              <button 
-                type="button" 
-                className="demo-btn"
-                onClick={() => handleAuthSubmit(null, { username: 'admin', password: 'admin123' })}
-              >
-                <span>👨‍💼 Bank Manager</span>
-                <span style={{ fontSize: '0.72rem', color: '#a78bfa' }}>admin / admin123</span>
-              </button>
-              <button 
-                type="button" 
-                className="demo-btn"
-                onClick={() => handleAuthSubmit(null, { username: '1001', password: 'demo123' })}
-              >
-                <span>👤 Customer Portal</span>
-                <span style={{ fontSize: '0.72rem', color: '#34d399' }}>1001 / demo123</span>
-              </button>
-            </div>
-          </div>
-
-          {authError && (
-            <div style={{
-              background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)',
-              color: '#fda4af', padding: '12px 16px', borderRadius: '12px', marginBottom: '20px',
-              fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px'
-            }}>
-              <ShieldAlert size={18} />
-              <span>{authError}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleAuthSubmit}>
-            {authMode === 'register' && (
-              <div className="input-group" style={{ marginBottom: '16px' }}>
-                <label>Full Name</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Aarav Sharma"
-                  value={authForm.name}
-                  onChange={e => setAuthForm({ ...authForm, name: e.target.value })}
-                  required
-                />
-              </div>
-            )}
-
-            <div className="input-group" style={{ marginBottom: '16px' }}>
-              <label>Username / Account No</label>
-              <input 
-                type="text" 
-                placeholder={authMode === 'login' ? 'e.g. admin or 1001' : 'e.g. aarav123'}
-                value={authForm.username}
-                onChange={e => setAuthForm({ ...authForm, username: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="input-group" style={{ marginBottom: '24px' }}>
-              <label>Password</label>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={authForm.password}
-                  onChange={e => setAuthForm({ ...authForm, password: e.target.value })}
-                  required
-                  style={{ width: '100%', paddingRight: '42px' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer'
-                  }}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <button type="submit" className="action-btn btn-primary" style={{ width: '100%', padding: '14px' }} disabled={authLoading}>
-              {authLoading ? <RefreshCw className="spin-icon" size={18} /> : <LogIn size={18} />}
-              <span>{authMode === 'login' ? 'Sign In to Portal' : 'Create Account'}</span>
-            </button>
-          </form>
-        </div>
-      </div>
-    );
+    return <LoginPage onLoginSuccess={(user) => setCurrentUser(user)} apiBase={API_BASE} />;
   }
 
   return (
