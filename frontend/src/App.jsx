@@ -8,6 +8,9 @@ import {
 import confetti from 'canvas-confetti';
 
 
+const rawApiBase = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE : '';
+const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
 let base = (rawApiBase && !rawApiBase.includes('<'))
   ? rawApiBase
   : (isLocal ? 'http://localhost:5000/api' : 'https://bank-management-system-17my.onrender.com/api');
