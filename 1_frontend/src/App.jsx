@@ -27,10 +27,11 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState('none'); // 'none', 'asc', 'desc'
   const [highestOnly, setHighestOnly] = useState(false);
 
-  // Authentication State
+  // Authentication State (Bypassed for direct access)
+  const defaultUser = { username: 'admin', name: 'System Bank Manager', role: 'manager', accountNo: 0 };
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('bank_user');
-    return saved ? JSON.parse(saved) : null;
+    return saved ? JSON.parse(saved) : defaultUser;
   });
 
   const [authMode, setAuthMode] = useState('login');
@@ -77,7 +78,8 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('bank_user');
-    setCurrentUser(null);
+    setCurrentUser(defaultUser);
+    showToast('Session refreshed to System Manager');
   };
   
   // Modals state
@@ -322,9 +324,7 @@ export default function App() {
     c.phone.includes(searchTerm)
   );
 
-  if (!currentUser) {
-    return <LoginPage onLoginSuccess={(user) => setCurrentUser(user)} apiBase={API_BASE} />;
-  }
+  const activeUser = currentUser || defaultUser;
 
   return (
     <div className="dashboard-layout">
