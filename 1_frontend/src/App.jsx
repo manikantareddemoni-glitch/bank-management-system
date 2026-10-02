@@ -7,7 +7,6 @@ import {
   Lock, LogIn, LogOut, Eye, EyeOff, User, KeyRound, ShieldAlert
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import LoginPage from './components/LoginPage';
 
 
 let base = (rawApiBase && !rawApiBase.includes('<'))
@@ -27,59 +26,7 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState('none'); // 'none', 'asc', 'desc'
   const [highestOnly, setHighestOnly] = useState(false);
 
-  // Authentication State
-  const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('bank_user');
-    return saved ? JSON.parse(saved) : null;
-  });
 
-  const [authMode, setAuthMode] = useState('login');
-  const [authForm, setAuthForm] = useState({ username: '', password: '', name: '', role: 'manager', accountNo: '' });
-  const [showPassword, setShowPassword] = useState(false);
-  const [authError, setAuthError] = useState('');
-  const [authLoading, setAuthLoading] = useState(false);
-
-  const handleAuthSubmit = async (e, customCreds = null) => {
-    if (e) e.preventDefault();
-    setAuthError('');
-    setAuthLoading(true);
-
-    const isLogin = authMode === 'login' || customCreds !== null;
-    const endpoint = isLogin ? `${API_BASE}/auth/login` : `${API_BASE}/auth/register`;
-    const bodyData = customCreds || (isLogin 
-      ? { username: authForm.username, password: authForm.password } 
-      : authForm);
-
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyData)
-      });
-
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server is currently starting up on Render. Please wait ~15 seconds and try again.');
-      }
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Authentication failed');
-
-      localStorage.setItem('bank_user', JSON.stringify(data.user));
-      setCurrentUser(data.user);
-      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-    } catch (err) {
-      setAuthError(err.message);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('bank_user');
-    setCurrentUser(null);
-    showToast('Signed out successfully');
-  };
   
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -323,9 +270,6 @@ export default function App() {
     c.phone.includes(searchTerm)
   );
 
-  if (!currentUser) {
-    return <LoginPage onLoginSuccess={(user) => setCurrentUser(user)} apiBase={API_BASE} />;
-  }
 
   return (
     <div className="dashboard-layout">
@@ -376,32 +320,21 @@ export default function App() {
           </button>
         </nav>
 
-        {/* User Profile & Logout */}
+        {/* System Manager Header Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: '10px',
-            background: 'rgba(255, 255, 255, 0.05)', padding: '6px 14px', borderRadius: '14px',
+            background: 'rgba(255, 255, 255, 0.05)', padding: '8px 16px', borderRadius: '14px',
             border: '1px solid rgba(255, 255, 255, 0.08)'
           }}>
             <div className="avatar-circle" style={{ width: '32px', height: '32px', fontSize: '0.8rem' }}>
-              {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
+              M
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>{currentUser.name}</span>
-              <span style={{ fontSize: '0.7rem', color: '#a78bfa', textTransform: 'capitalize' }}>
-                {currentUser.role === 'manager' ? '👨‍💼 Bank Manager' : `👤 Account #${currentUser.accountNo}`}
-              </span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>System Bank Manager</span>
+              <span style={{ fontSize: '0.7rem', color: '#34d399' }}>● Active Portal Session</span>
             </div>
           </div>
-          <button 
-            onClick={handleLogout}
-            className="action-btn"
-            style={{ padding: '8px 14px', background: 'rgba(244, 63, 94, 0.12)', color: '#fda4af', border: '1px solid rgba(244, 63, 94, 0.25)' }}
-            title="Sign Out"
-          >
-            <LogOut size={16} />
-            <span>Logout</span>
-          </button>
         </div>
       </header>
 
