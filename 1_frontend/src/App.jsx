@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, Users, CreditCard, ArrowUpRight, ArrowDownLeft, 
-  Search, Plus, RefreshCw, Trash2, Activity, ShieldCheck, 
-  TrendingUp, CheckCircle2, AlertTriangle, Cpu, Play, Pause, RotateCcw,
-  Sparkles, DollarSign, Wallet, ArrowRight, Clock, Award,
-  Lock, LogIn, LogOut, Eye, EyeOff, User, KeyRound, ShieldAlert
+  Search, Plus, RefreshCw, Trash2, Activity, 
+  TrendingUp, CheckCircle2, AlertTriangle, 
+  Sparkles, DollarSign, Wallet, ArrowRight, Award
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -41,11 +40,6 @@ export default function App() {
   // Notification Toast state
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
-  // DSA Visualizer State
-  const [binarySearchAcc, setBinarySearchAcc] = useState('');
-  const [binarySteps, setBinarySteps] = useState([]);
-  const [currentBinaryIdx, setCurrentBinaryIdx] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -90,55 +84,6 @@ export default function App() {
     fetchCustomers();
   }, []);
 
-  // Hand-rolled Binary Search Visualizer Simulation
-  const runBinarySearchVisualizer = () => {
-    const acc = parseInt(binarySearchAcc, 10);
-    if (!acc) {
-      showToast('Please enter a valid Account Number', 'error');
-      return;
-    }
-    const sorted = [...customers].sort((a, b) => a.accountNo - b.accountNo);
-    let low = 0;
-    let high = sorted.length - 1;
-    const steps = [];
-
-    while (low <= high) {
-      let mid = Math.floor(low + (high - low) / 2);
-      const midAcc = sorted[mid].accountNo;
-      const isMatch = midAcc === acc;
-      steps.push({
-        low, high, mid, midAcc,
-        found: isMatch,
-        explanation: isMatch 
-          ? `MATCH FOUND! target (${acc}) equals account_no at mid index [${mid}].` 
-          : (midAcc < acc 
-              ? `${midAcc} < ${acc}: Target is in the RIGHT half. Set low = ${mid + 1}.` 
-              : `${midAcc} > ${acc}: Target is in the LEFT half. Set high = ${mid - 1}.`)
-      });
-      if (isMatch) break;
-      if (midAcc < acc) low = mid + 1;
-      else high = mid - 1;
-    }
-    setBinarySteps(steps);
-    setCurrentBinaryIdx(0);
-    setIsAutoPlaying(false);
-  };
-
-  useEffect(() => {
-    let timer;
-    if (isAutoPlaying && binarySteps.length > 0) {
-      timer = setInterval(() => {
-        setCurrentBinaryIdx(prev => {
-          if (prev >= binarySteps.length - 1) {
-            setIsAutoPlaying(false);
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 1500);
-    }
-    return () => clearInterval(timer);
-  }, [isAutoPlaying, binarySteps]);
 
   // Submit Handlers
   const handleAddSubmit = async (e) => {
@@ -311,9 +256,6 @@ export default function App() {
           </button>
           <button className={`tab-btn ${activeTab === 'operations' ? 'active' : ''}`} onClick={() => setActiveTab('operations')}>
             <Wallet size={18} /> Money Studio
-          </button>
-          <button className={`tab-btn ${activeTab === 'visualizer' ? 'active' : ''}`} onClick={() => setActiveTab('visualizer')}>
-            <Cpu size={18} /> DSA Visualizer
           </button>
           <button className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
             <Activity size={18} /> Audit History
@@ -609,98 +551,8 @@ export default function App() {
         </div>
       )}
 
-      {/* TAB 3: DSA VISUALIZER */}
-      {activeTab === 'dsa' && (
-        <div className="premium-card" style={{ padding: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
-            <div className="brand-logo" style={{ background: 'var(--purple-gradient)' }}>
-              <Cpu size={26} />
-            </div>
-            <div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Interactive Binary Search Visualizer O(log n)</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Demonstrates hand-rolled iterative binary search halving intervals on vector sorted by account_no.
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '14px', marginBottom: '24px', flexWrap: 'wrap' }}>
-            <input 
-              type="number" 
-              placeholder="Target Account No (e.g. 1003)" 
-              value={binarySearchAcc}
-              onChange={(e) => setBinarySearchAcc(e.target.value)}
-              style={{ padding: '12px 18px', borderRadius: '12px', background: 'rgba(13, 19, 34, 0.8)', border: '1px solid var(--border-subtle)', color: 'white', width: '280px', fontFamily: 'var(--font-mono)' }}
-            />
-            <button className="action-btn btn-gradient-primary" onClick={runBinarySearchVisualizer}>
-              Run Binary Search
-            </button>
-          </div>
-
-          {binarySteps.length > 0 && (
-            <div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '20px' }}>
-                <button 
-                  className="action-btn btn-glass" 
-                  disabled={currentBinaryIdx === 0}
-                  onClick={() => setCurrentBinaryIdx(prev => Math.max(0, prev - 1))}
-                >
-                  Step Back
-                </button>
-                <button 
-                  className="action-btn btn-glass"
-                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                >
-                  {isAutoPlaying ? <Pause size={16} /> : <Play size={16} />} {isAutoPlaying ? 'Pause' : 'Auto Play'}
-                </button>
-                <button 
-                  className="action-btn btn-glass" 
-                  disabled={currentBinaryIdx === binarySteps.length - 1}
-                  onClick={() => setCurrentBinaryIdx(prev => Math.min(binarySteps.length - 1, prev + 1))}
-                >
-                  Next Step
-                </button>
-                <span style={{ fontWeight: 700, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
-                  Iteration {currentBinaryIdx + 1} of {binarySteps.length}
-                </span>
-              </div>
-
-              <div style={{ padding: '16px 20px', background: 'rgba(13, 19, 34, 0.9)', borderRadius: '12px', marginBottom: '24px', borderLeft: '4px solid #6366f1', fontWeight: 600 }}>
-                {binarySteps[currentBinaryIdx].explanation}
-              </div>
-
-              <div className="dsa-canvas">
-                {customers.map((c, idx) => {
-                  const step = binarySteps[currentBinaryIdx];
-                  const isMid = idx === step.mid;
-                  const isLow = idx === step.low;
-                  const isHigh = idx === step.high;
-                  const isMatch = step.found && isMid;
-
-                  let nodeClass = 'node-card';
-                  if (isMatch) nodeClass += ' match-node';
-                  else if (isMid) nodeClass += ' mid-node';
-                  else if (isLow || isHigh) nodeClass += ' low-node';
-
-                  return (
-                    <div key={c.accountNo} className={nodeClass}>
-                      <div className="node-val">#{c.accountNo}</div>
-                      <div className="node-sub">idx [{idx}]</div>
-
-                      {isMid && <span className="pointer-badge badge-mid-p">MID</span>}
-                      {isLow && !isMid && <span className="pointer-badge badge-low-p">LOW</span>}
-                      {isHigh && !isMid && <span className="pointer-badge badge-high-p">HIGH</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 4: AUDIT TRAIL */}
-      {activeTab === 'audit' && (
+      {/* TAB 3: AUDIT TRAIL */}
+      {activeTab === 'history' && (
         <div className="premium-card" style={{ padding: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
             <div className="brand-logo" style={{ background: 'var(--cyan-gradient)' }}>
