@@ -58,7 +58,7 @@ endif()
 
 # Target 2: DB-Free Unit Tests Executable
 add_executable(test_algorithms
-    ../5_tests/test_algorithms.cpp
+    ../tests/test_algorithms.cpp
     src/Bank.cpp
     src/Utils.cpp
     src/Database.cpp

@@ -2,7 +2,7 @@ services:
   - type: web
     name: bank-management-backend
     env: node
-    rootDir: 2_backend
+    rootDir: backend
     buildCommand: npm install
     startCommand: node server.js
     envVars:
