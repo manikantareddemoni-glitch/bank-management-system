@@ -139,6 +139,20 @@
       "createdAt": "2026-10-01 18:46:48",
       "updatedAt": "2026-10-01T18:46:48.000Z",
       "__v": 0
+    },
+    {
+      "_id": "6ac0c26ee83fdd16c4ff5bf5",
+      "id": 12,
+      "accountNo": 1012,
+      "name": "ramesh",
+      "phone": "2345678901",
+      "email": "ramesh@gmail.com",
+      "accountType": "SAVINGS",
+      "balanceRupees": "1500.00",
+      "balancePaise": 150000,
+      "createdAt": "2026-10-03 08:53:02",
+      "updatedAt": "2026-10-03T08:53:02.000Z",
+      "__v": 0
     }
   ],
   "transactions": [
@@ -261,9 +275,33 @@
       "createdAt": "2026-10-01T18:46:48.484Z",
       "updatedAt": "2026-10-01T18:46:48.484Z",
       "__v": 0
+    },
+    {
+      "_id": "6ac0c26fe83fdd16c4ff5bf7",
+      "txn_id": 12,
+      "account_no": 1012,
+      "txn_type": "OPENING",
+      "amount": "1500.00",
+      "balance_after": "1500.00",
+      "txn_time": "2026-10-03 08:53:02",
+      "createdAt": "2026-10-03T08:53:03.191Z",
+      "updatedAt": "2026-10-03T08:53:03.191Z",
+      "__v": 0
+    },
+    {
+      "_id": "6ac0c4e344ba6fabb34c416f",
+      "txn_id": 13,
+      "account_no": 1002,
+      "txn_type": "WITHDRAW",
+      "amount": "200.00",
+      "balance_after": "1000.00",
+      "txn_time": "2026-10-03 14:30:00",
+      "createdAt": "2026-10-03T09:03:31.354Z",
+      "updatedAt": "2026-10-03T09:03:31.354Z",
+      "__v": 0
     }
   ],
-  "nextId": 12,
-  "nextAccNo": 1012,
-  "nextTxnId": 12
+  "nextId": 13,
+  "nextAccNo": 1013,
+  "nextTxnId": 14
 }

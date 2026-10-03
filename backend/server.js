@@ -460,23 +460,46 @@ app.post('/api/deposit', async (req, res) => {
     }
 
     localData = loadLocalData();
-    const target = localData.customers.find(c => c.accountNo === accNo);
-    if (!target) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+    let currentBalPaise = 0;
+    let target = localData.customers.find(c => c.accountNo === accNo);
 
-    target.balancePaise += amtPaise;
-    target.balanceRupees = formatPaiseToRupees(target.balancePaise);
+    if (mongoose.connection.readyState === 1) {
+        const dbCust = await CustomerModel.findOne({ accountNo: accNo }).lean();
+        if (!dbCust) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+        currentBalPaise = dbCust.balancePaise;
+    } else {
+        if (!target) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+        currentBalPaise = target.balancePaise;
+    }
+
+    const newBalPaise = currentBalPaise + amtPaise;
+    const newBalStr = formatPaiseToRupees(newBalPaise);
     const amtStr = formatPaiseToRupees(amtPaise);
     const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
+    let newTxnId;
+    if (mongoose.connection.readyState === 1) {
+        const dbTxns = await TransactionModel.find().lean();
+        const maxTxn = dbTxns.reduce((max, t) => Math.max(max, t.txn_id || 0), 0);
+        newTxnId = maxTxn + 1;
+    } else {
+        newTxnId = localData.nextTxnId || (localData.transactions.length + 1);
+    }
+    localData.nextTxnId = newTxnId + 1;
+
     const newTxn = {
-        txn_id: localData.nextTxnId++,
+        txn_id: newTxnId,
         account_no: accNo,
         txn_type: 'DEPOSIT',
         amount: amtStr,
-        balance_after: target.balanceRupees,
+        balance_after: newBalStr,
         txn_time: timeStr
     };
 
+    if (target) {
+        target.balancePaise = newBalPaise;
+        target.balanceRupees = newBalStr;
+    }
     localData.transactions.push(newTxn);
     saveLocalData(localData);
 
@@ -484,15 +507,16 @@ app.post('/api/deposit', async (req, res) => {
         try {
             await CustomerModel.updateOne(
                 { accountNo: accNo },
-                { balanceRupees: target.balanceRupees, balancePaise: target.balancePaise }
+                { balanceRupees: newBalStr, balancePaise: newBalPaise }
             );
             await TransactionModel.create(newTxn);
         } catch (err) {
-            console.error("MongoDB Sync Error on Deposit:", err.message);
+            console.error("MongoDB Deposit Error:", err.message);
+            return res.status(500).json({ error: 'Database transaction error: ' + err.message });
         }
     }
 
-    res.json({ success: true, newBalance: target.balanceRupees, message: `Deposit saved! New Balance: Rs. ${target.balanceRupees}` });
+    res.json({ success: true, newBalance: newBalStr, message: `Deposit saved! New Balance: Rs. ${newBalStr}` });
 });
 
 // Withdraw Funds
@@ -506,32 +530,57 @@ app.post('/api/withdraw', async (req, res) => {
     }
 
     localData = loadLocalData();
-    const target = localData.customers.find(c => c.accountNo === accNo);
-    if (!target) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+    let currentBalPaise = 0;
+    let accType = 'SAVINGS';
+    let target = localData.customers.find(c => c.accountNo === accNo);
 
-    if (amtPaise > target.balancePaise) {
+    if (mongoose.connection.readyState === 1) {
+        const dbCust = await CustomerModel.findOne({ accountNo: accNo }).lean();
+        if (!dbCust) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+        currentBalPaise = dbCust.balancePaise;
+        accType = dbCust.accountType;
+    } else {
+        if (!target) return res.status(404).json({ error: `Account number ${accNo} not found.` });
+        currentBalPaise = target.balancePaise;
+        accType = target.accountType;
+    }
+
+    if (amtPaise > currentBalPaise) {
         return res.status(400).json({ error: 'Withdrawal rejected: Insufficient balance.' });
     }
 
-    const newBalPaise = target.balancePaise - amtPaise;
-    if (target.accountType === 'SAVINGS' && newBalPaise < 50000) {
+    const newBalPaise = currentBalPaise - amtPaise;
+    if (accType === 'SAVINGS' && newBalPaise < 50000) {
         return res.status(400).json({ error: 'Withdrawal rejected: SAVINGS balance cannot drop below Rs. 500.00.' });
     }
 
-    target.balancePaise = newBalPaise;
-    target.balanceRupees = formatPaiseToRupees(newBalPaise);
+    const newBalStr = formatPaiseToRupees(newBalPaise);
     const amtStr = formatPaiseToRupees(amtPaise);
     const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
+    let newTxnId;
+    if (mongoose.connection.readyState === 1) {
+        const dbTxns = await TransactionModel.find().lean();
+        const maxTxn = dbTxns.reduce((max, t) => Math.max(max, t.txn_id || 0), 0);
+        newTxnId = maxTxn + 1;
+    } else {
+        newTxnId = localData.nextTxnId || (localData.transactions.length + 1);
+    }
+    localData.nextTxnId = newTxnId + 1;
+
     const newTxn = {
-        txn_id: localData.nextTxnId++,
+        txn_id: newTxnId,
         account_no: accNo,
         txn_type: 'WITHDRAW',
         amount: amtStr,
-        balance_after: target.balanceRupees,
+        balance_after: newBalStr,
         txn_time: timeStr
     };
 
+    if (target) {
+        target.balancePaise = newBalPaise;
+        target.balanceRupees = newBalStr;
+    }
     localData.transactions.push(newTxn);
     saveLocalData(localData);
 
@@ -539,15 +588,16 @@ app.post('/api/withdraw', async (req, res) => {
         try {
             await CustomerModel.updateOne(
                 { accountNo: accNo },
-                { balanceRupees: target.balanceRupees, balancePaise: target.balancePaise }
+                { balanceRupees: newBalStr, balancePaise: newBalPaise }
             );
             await TransactionModel.create(newTxn);
         } catch (err) {
-            console.error("MongoDB Sync Error on Withdraw:", err.message);
+            console.error("MongoDB Withdraw Error:", err.message);
+            return res.status(500).json({ error: 'Database transaction error: ' + err.message });
         }
     }
 
-    res.json({ success: true, newBalance: target.balanceRupees, message: `Withdrawal saved! New Balance: Rs. ${target.balanceRupees}` });
+    res.json({ success: true, newBalance: newBalStr, message: `Withdrawal saved! New Balance: Rs. ${newBalStr}` });
 });
 
 // Delete Account
