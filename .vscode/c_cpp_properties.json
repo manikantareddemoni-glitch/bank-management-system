@@ -4,8 +4,8 @@
       "name": "Win32",
       "compilerPath": "C:/Users/shekar/tools/w64devkit/bin/g++.exe",
       "includePath": [
-        "${workspaceFolder}/4_cpp_backend/include",
-        "C:/Users/shekar/tools/pgsql/include",
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/BankManagementSystem",
         "C:/Users/shekar/tools/w64devkit/include"
       ],
       "defines": [

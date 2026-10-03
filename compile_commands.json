@@ -1,7 +1,32 @@
 [
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "g++ -std=c++17 -c bank_management_system.cpp",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -c bank_management_system.cpp",
     "file": "bank_management_system.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT/BankManagementSystem",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -I. -c student1.cpp",
+    "file": "BankManagementSystem/student1.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT/BankManagementSystem",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -I. -c student2.cpp",
+    "file": "BankManagementSystem/student2.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT/BankManagementSystem",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -I. -c student3.cpp",
+    "file": "BankManagementSystem/student3.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT/BankManagementSystem",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -I. -c student4.cpp",
+    "file": "BankManagementSystem/student4.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT/BankManagementSystem",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -I. -c student5.cpp",
+    "file": "BankManagementSystem/student5.cpp"
   }
 ]
