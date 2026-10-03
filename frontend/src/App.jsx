@@ -44,6 +44,16 @@ export default function App() {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
 
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    let str = String(dateStr).trim();
+    // Fix missing space bug e.g. "2026-01-0110:15:00" -> "2026-01-01 10:15:00"
+    if (str.length >= 19 && str[10] !== ' ' && str[10] !== 'T') {
+      str = str.substring(0, 10) + ' ' + str.substring(10);
+    }
+    return str;
+  };
+
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 4500);
@@ -466,7 +476,7 @@ export default function App() {
                     <td className="amount-high">
                       Rs. {(c.balancePaise / 100).toFixed(2)}
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{c.createdAt}</td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{formatDateTime(c.createdAt)}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button 
@@ -653,7 +663,7 @@ export default function App() {
                     </td>
                     <td className="amount-high">Rs. {t.amount}</td>
                     <td style={{ fontWeight: 700, fontFamily: 'var(--font-mono)' }}>Rs. {t.balance_after}</td>
-                    <td style={{ color: 'var(--text-muted)' }}>{t.txn_time}</td>
+                    <td style={{ color: 'var(--text-muted)' }}>{formatDateTime(t.txn_time)}</td>
                   </tr>
                 ))}
                 {transactions.length === 0 && (

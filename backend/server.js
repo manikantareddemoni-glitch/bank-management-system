@@ -214,6 +214,21 @@ function formatPaiseToRupees(paiseVal) {
     return `${isNeg ? '-' : ''}${rupees}.${paiseFormatted}`;
 }
 
+function getCurrentTimestamp() {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
+    return formatter.format(now).replace(', ', ' ');
+}
+
 // REST API Endpoints
 
 app.get('/api/health', async (req, res) => {
@@ -409,7 +424,7 @@ app.post('/api/customers', async (req, res) => {
     localData.nextTxnId = newTxnId + 1;
 
     const balStr = formatPaiseToRupees(openingPaise);
-    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const timeStr = getCurrentTimestamp();
 
     const newCust = {
         id: newId,
@@ -475,7 +490,7 @@ app.post('/api/deposit', async (req, res) => {
     const newBalPaise = currentBalPaise + amtPaise;
     const newBalStr = formatPaiseToRupees(newBalPaise);
     const amtStr = formatPaiseToRupees(amtPaise);
-    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const timeStr = getCurrentTimestamp();
 
     let newTxnId;
     if (mongoose.connection.readyState === 1) {
@@ -556,7 +571,7 @@ app.post('/api/withdraw', async (req, res) => {
 
     const newBalStr = formatPaiseToRupees(newBalPaise);
     const amtStr = formatPaiseToRupees(amtPaise);
-    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const timeStr = getCurrentTimestamp();
 
     let newTxnId;
     if (mongoose.connection.readyState === 1) {

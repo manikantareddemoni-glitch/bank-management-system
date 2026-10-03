@@ -50,11 +50,11 @@
       "phone": "9601234567",
       "email": "ananya.iyer@example.com",
       "accountType": "SAVINGS",
-      "balanceRupees": "650.75",
-      "balancePaise": 65075,
+      "balanceRupees": "2650.75",
+      "balancePaise": 265075,
       "createdAt": "2026-01-01 10:15:00",
       "__v": 0,
-      "updatedAt": "2026-10-01T09:42:08.874Z"
+      "updatedAt": "2026-10-03T09:05:01.552Z"
     },
     {
       "_id": "6abe2af079a40e964fab77e3",
@@ -150,7 +150,7 @@
       "accountType": "SAVINGS",
       "balanceRupees": "1500.00",
       "balancePaise": 150000,
-      "createdAt": "2026-10-03 08:53:02",
+      "createdAt": "2026-10-03 14:53:02",
       "updatedAt": "2026-10-03T08:53:02.000Z",
       "__v": 0
     }
@@ -283,7 +283,7 @@
       "txn_type": "OPENING",
       "amount": "1500.00",
       "balance_after": "1500.00",
-      "txn_time": "2026-10-03 08:53:02",
+      "txn_time": "2026-10-03 14:53:02",
       "createdAt": "2026-10-03T08:53:03.191Z",
       "updatedAt": "2026-10-03T08:53:03.191Z",
       "__v": 0
@@ -299,9 +299,33 @@
       "createdAt": "2026-10-03T09:03:31.354Z",
       "updatedAt": "2026-10-03T09:03:31.354Z",
       "__v": 0
+    },
+    {
+      "_id": "6ac0c53c91b7f5ad68673278",
+      "txn_id": 14,
+      "account_no": 1004,
+      "txn_type": "DEPOSIT",
+      "amount": "1000.00",
+      "balance_after": "1650.75",
+      "txn_time": "2026-10-03 14:05:00",
+      "createdAt": "2026-10-03T09:05:00.606Z",
+      "updatedAt": "2026-10-03T09:05:00.606Z",
+      "__v": 0
+    },
+    {
+      "_id": "6ac0c53d91b7f5ad68673279",
+      "txn_id": 15,
+      "account_no": 1004,
+      "txn_type": "DEPOSIT",
+      "amount": "1000.00",
+      "balance_after": "2650.75",
+      "txn_time": "2026-10-03 14:05:01",
+      "createdAt": "2026-10-03T09:05:01.789Z",
+      "updatedAt": "2026-10-03T09:05:01.789Z",
+      "__v": 0
     }
   ],
   "nextId": 13,
   "nextAccNo": 1013,
-  "nextTxnId": 14
+  "nextTxnId": 16
 }
