@@ -25,7 +25,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [dbStatus, setDbStatus] = useState({ connected: false, message: 'Verifying Database Connection...' });
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState('none'); // 'none', 'asc', 'desc'
+  const [sortOrder, setSortOrder] = useState('latest'); // 'latest', 'none', 'asc', 'desc'
   const [highestOnly, setHighestOnly] = useState(false);
 
 
@@ -94,7 +94,7 @@ export default function App() {
   };
 
   const handleRefresh = () => {
-    setSortOrder('none');
+    setSortOrder('latest');
     setHighestOnly(false);
     setSearchTerm('');
     checkHealth();
