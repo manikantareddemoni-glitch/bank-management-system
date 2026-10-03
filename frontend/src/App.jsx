@@ -4,7 +4,7 @@ import {
   Search, Plus, RefreshCw, Trash2, Activity, 
   TrendingUp, CheckCircle2, AlertTriangle, 
   Sparkles, DollarSign, Wallet, ArrowRight, Award,
-  ChevronDown, ChevronUp
+  ChevronDown, ChevronUp, Download
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -315,8 +315,28 @@ export default function App() {
           </button>
         </nav>
 
-        {/* System Manager Header Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* System Manager Header Badge & Download PPT Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <a
+            href="/Bank_Management_System_Presentation.pptx"
+            download="Bank_Management_System_Presentation.pptx"
+            className="action-btn btn-gradient-primary"
+            style={{
+              textDecoration: 'none',
+              padding: '8px 16px',
+              fontSize: '0.85rem',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 15px rgba(99, 102, 241, 0.35)'
+            }}
+            title="Download CS207 14-Slide PowerPoint Presentation"
+          >
+            <Download size={16} />
+            <span>Download PPT</span>
+          </a>
+
           <div style={{
             display: 'flex', alignItems: 'center', gap: '10px',
             background: 'rgba(255, 255, 255, 0.05)', padding: '8px 16px', borderRadius: '14px',
