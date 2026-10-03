@@ -125,6 +125,18 @@ async function connectMongoDB() {
             console.log("Seeding MongoDB with local data.json records...");
             await CustomerModel.insertMany(localData.customers);
             await TransactionModel.insertMany(localData.transactions);
+        } else if (count > 0) {
+            const dbCusts = await CustomerModel.find().sort({ accountNo: 1 }).lean();
+            const dbTxns = await TransactionModel.find().sort({ txn_id: 1 }).lean();
+            localData.customers = dbCusts;
+            localData.transactions = dbTxns;
+            const maxId = dbCusts.reduce((max, c) => Math.max(max, c.id || 0), 0);
+            const maxAcc = dbCusts.reduce((max, c) => Math.max(max, c.accountNo || 1000), 1000);
+            const maxTxn = dbTxns.reduce((max, t) => Math.max(max, t.txn_id || 0), 0);
+            localData.nextId = maxId + 1;
+            localData.nextAccNo = maxAcc + 1;
+            localData.nextTxnId = maxTxn + 1;
+            saveLocalData(localData);
         }
     } catch (err) {
         console.log("MongoDB Atlas not connected (Using Localhost data.json):", err.message);
@@ -302,7 +314,8 @@ app.post('/api/customers', async (req, res) => {
     if (!name || !phone || !accountType) {
         return res.status(400).json({ error: 'Name, phone, and accountType are required.' });
     }
-    if (phone.length !== 10 || !/^\d+$/.test(phone)) {
+    const cleanPhone = phone.trim();
+    if (cleanPhone.length !== 10 || !/^\d+$/.test(cleanPhone)) {
         return res.status(400).json({ error: 'Phone number must be exactly 10 digits.' });
     }
 
@@ -316,13 +329,39 @@ app.post('/api/customers', async (req, res) => {
     }
 
     localData = loadLocalData();
-    if (localData.customers.some(c => c.phone === phone.trim())) {
-        return res.status(400).json({ error: 'Phone number already registered.' });
+
+    // Check duplicate phone in MongoDB Atlas if connected, or localData
+    if (mongoose.connection.readyState === 1) {
+        const existingDb = await CustomerModel.findOne({ phone: cleanPhone }).lean();
+        if (existingDb) {
+            return res.status(400).json({ error: 'Phone number already registered.' });
+        }
+    } else {
+        if (localData.customers.some(c => c.phone === cleanPhone)) {
+            return res.status(400).json({ error: 'Phone number already registered.' });
+        }
     }
 
-    const newId = localData.nextId || (localData.customers.length + 1);
+    let newId, newAccNo, newTxnId;
+    if (mongoose.connection.readyState === 1) {
+        const dbCusts = await CustomerModel.find().lean();
+        const dbTxns = await TransactionModel.find().lean();
+        const maxId = dbCusts.reduce((max, c) => Math.max(max, c.id || 0), 0);
+        const maxAcc = dbCusts.reduce((max, c) => Math.max(max, c.accountNo || 1000), 1000);
+        const maxTxn = dbTxns.reduce((max, t) => Math.max(max, t.txn_id || 0), 0);
+        newId = maxId + 1;
+        newAccNo = maxAcc + 1;
+        newTxnId = maxTxn + 1;
+    } else {
+        newId = localData.nextId || (localData.customers.length + 1);
+        newAccNo = localData.nextAccNo || 1001;
+        newTxnId = localData.nextTxnId || 1;
+    }
+
     localData.nextId = newId + 1;
-    const newAccNo = localData.nextAccNo++;
+    localData.nextAccNo = newAccNo + 1;
+    localData.nextTxnId = newTxnId + 1;
+
     const balStr = formatPaiseToRupees(openingPaise);
     const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
@@ -330,7 +369,7 @@ app.post('/api/customers', async (req, res) => {
         id: newId,
         accountNo: newAccNo,
         name: name.trim(),
-        phone: phone.trim(),
+        phone: cleanPhone,
         email: (email || '').trim(),
         accountType,
         balanceRupees: balStr,
@@ -339,7 +378,7 @@ app.post('/api/customers', async (req, res) => {
     };
 
     const newTxn = {
-        txn_id: localData.nextTxnId++,
+        txn_id: newTxnId,
         account_no: newAccNo,
         txn_type: 'OPENING',
         amount: balStr,
@@ -347,20 +386,21 @@ app.post('/api/customers', async (req, res) => {
         txn_time: timeStr
     };
 
-    localData.customers.push(newCust);
-    localData.transactions.push(newTxn);
-    saveLocalData(localData);
-
     if (mongoose.connection.readyState === 1) {
         try {
             await CustomerModel.create(newCust);
             await TransactionModel.create(newTxn);
         } catch (err) {
-            console.error("MongoDB Sync Error on Insert:", err.message);
+            console.error("MongoDB Insert Error:", err.message);
+            return res.status(500).json({ error: 'Database record creation failed: ' + err.message });
         }
     }
 
-    res.json({ success: true, accountNo: newAccNo, message: `Account created! ID: ${newId}, Account No: ${newAccNo}` });
+    localData.customers.push(newCust);
+    localData.transactions.push(newTxn);
+    saveLocalData(localData);
+
+    res.json({ success: true, accountNo: newAccNo, message: `Account created! ID: #${newId}, Account No: #${newAccNo}` });
 });
 
 // Deposit Funds

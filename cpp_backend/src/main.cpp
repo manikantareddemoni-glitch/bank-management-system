@@ -1,6 +1,7 @@
 #include "Database.h"
 #include "Bank.h"
 #include "Utils.h"
+#include "SyllabusDS.h"
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -314,9 +315,103 @@ void handleViewTransactions() {
     cout << " Total transactions: " << txns.size() << "\n";
 }
 
+void handle2DMatrixOperations() {
+    printHeader("MODULE IV: 2D NUMERIC ARRAYS & MATRIX OPERATIONS");
+    cout << " Computing Branch Cash Flow Matrix Operations (Quarterly Auditing):\n";
+
+    BranchMatrix Q1 = { 2, 2, {{10000, 20000}, {15000, 25000}} };
+    BranchMatrix Q2 = { 2, 2, {{5000,  12000}, {8000,  14000}} };
+
+    printMatrix("Quarter 1 Cash Flow", Q1);
+    printMatrix("Quarter 2 Cash Flow", Q2);
+
+    BranchMatrix Total = matrixAdd(Q1, Q2);
+    printMatrix("Combined Cash Flow (Q1 + Q2)", Total);
+
+    BranchMatrix Transposed = matrixTranspose(Total);
+    printMatrix("Transposed Cash Flow Matrix", Transposed);
+
+    BranchMatrix Multiplied = matrixMultiply(Q1, Q2);
+    printMatrix("Multiplied Matrix (Q1 * Q2)", Multiplied);
+}
+
+void handleStringManipulation() {
+    printHeader("MODULE V: STRING MANIPULATION & PATTERN MATCHING");
+    string sampleStr = readNonEmptyLine(" Enter a string to analyze: ");
+
+    cout << "\n 1. String Reversal: " << reverseString(sampleStr) << "\n";
+
+    int freq[256];
+    analyzeCharacterFrequency(sampleStr, freq);
+    cout << " 2. Top Character Frequencies:\n    ";
+    for (int i = 0; i < 256; ++i) {
+        if (freq[i] > 0 && isprint(i)) {
+            cout << "'" << static_cast<char>(i) << "':" << freq[i] << " ";
+        }
+    }
+    cout << "\n";
+
+    cout << " 3. Tokenization (by space):\n";
+    vector<string> tokens = tokenizeString(sampleStr, ' ');
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        cout << "    Token [" << i << "]: " << tokens[i] << "\n";
+    }
+
+    string sub = readNonEmptyLine(" Enter pattern substring to search: ");
+    bool found = patternMatchNaive(sampleStr, sub);
+    if (found) printSuccess("Pattern matched successfully!");
+    else printError("Pattern NOT found in string.");
+}
+
+void handleStackOperations() {
+    printHeader("MODULE VIII: STACK ADT (ARRAY STACK & APPLICATIONS)");
+    cout << " 1. Test Parenthesis Matching (Syntax Check)\n";
+    cout << " 2. Evaluate Infix Expression (Banking Fee Calculation)\n";
+    int choice = readInt(" Select option (1-2): ", 1, 2);
+
+    if (choice == 1) {
+        string expr = readNonEmptyLine(" Enter expression with brackets (e.g. {[a+b]*(c-d)}): ");
+        bool ok = checkParenthesisMatching(expr);
+        if (ok) printSuccess("Parentheses are BALANCED!");
+        else printError("Parentheses are UNBALANCED or MISMATCHED!");
+    } else {
+        string expr = readNonEmptyLine(" Enter infix math expression (e.g. (10 + 20) * 3): ");
+        int result = evaluateInfixExpression(expr);
+        printSuccess("Evaluated Result: " + to_string(result));
+    }
+}
+
+void handleQueueOperations() {
+    printHeader("MODULE IX: QUEUE ADT (LINEAR, CIRCULAR, PRIORITY QUEUE)");
+    cout << " Demonstrating Teller Counter Token Queue Systems:\n";
+
+    CircularQueue cq;
+    circularQueueInit(cq);
+    circularQueueEnqueue(cq, 101);
+    circularQueueEnqueue(cq, 102);
+    circularQueueEnqueue(cq, 103);
+    cout << "\n [Circular Queue] Enqueued Tokens: 101, 102, 103.\n";
+    int tOut;
+    if (circularQueueDequeue(cq, tOut)) {
+        cout << " Serviced Token from Circular Queue: #" << tOut << "\n";
+    }
+
+    PriorityQueue pq;
+    priorityQueueInit(pq);
+    priorityQueueEnqueue(pq, 501, 1, "Regular Account Holder");
+    priorityQueueEnqueue(pq, 999, 10, "VIP High Net Worth Account");
+    priorityQueueEnqueue(pq, 502, 2, "Senior Citizen Account");
+
+    cout << "\n [Priority Queue] Enqueued 3 tokens with different priorities.\n";
+    PriorityToken pt;
+    while (priorityQueueDequeue(pq, pt)) {
+        cout << "  Servicing Token #" << pt.token << " (" << pt.customerName << ") [Priority level: " << pt.priority << "]\n";
+    }
+}
+
 void printMenu() {
     cout << "\n+-------------------------------------------------------+\n";
-    cout << "|          BANK MANAGEMENT SYSTEM (SUPABASE DB)         |\n";
+    cout << "|     BANK MANAGEMENT SYSTEM (CS207 SYLLABUS SPEC)      |\n";
     cout << "+-------------------------------------------------------+\n";
     cout << "|  1. Add Customer Account                              |\n";
     cout << "|  2. Display All Customers                             |\n";
@@ -329,7 +424,12 @@ void printMenu() {
     cout << "|  9. Update Customer Details                           |\n";
     cout << "| 10. Delete / Close Account                            |\n";
     cout << "| 11. View Transaction History                          |\n";
-    cout << "| 12. Exit                                              |\n";
+    cout << "| 12. Demo Module IV: 2D Matrix Operations              |\n";
+    cout << "| 13. Demo Module V: String Manipulation & Frequency    |\n";
+    cout << "| 14. Demo Module VIII: Stack ADT & Applications        |\n";
+    cout << "| 15. Demo Module IX: Queue ADT (Linear, Circular, PQ)  |\n";
+    cout << "| 16. Demo Module X: STL Containers & Iterators         |\n";
+    cout << "| 17. Exit                                              |\n";
     cout << "+-------------------------------------------------------+\n";
 }
 
@@ -343,7 +443,7 @@ int main() {
 
     while (true) {
         printMenu();
-        int choice = readInt(" Select an option (1-12): ", 1, 12);
+        int choice = readInt(" Select an option (1-17): ", 1, 17);
         switch (choice) {
             case 1:  handleAddCustomer(customers); break;
             case 2:  handleDisplayAllCustomers(customers); break;
@@ -356,7 +456,12 @@ int main() {
             case 9:  handleUpdateCustomer(customers); break;
             case 10: handleDeleteCustomer(customers); break;
             case 11: handleViewTransactions(); break;
-            case 12:
+            case 12: handle2DMatrixOperations(); break;
+            case 13: handleStringManipulation(); break;
+            case 14: handleStackOperations(); break;
+            case 15: handleQueueOperations(); break;
+            case 16: demonstrateSTLContainers(customers); break;
+            case 17:
                 dbDisconnect();
                 cout << "\n Thank you for using Bank Management System. Goodbye!\n";
                 return 0;

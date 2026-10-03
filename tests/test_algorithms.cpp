@@ -1,5 +1,6 @@
 #include "Customer.h"
 #include "Bank.h"
+#include "SyllabusDS.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -167,6 +168,95 @@ void testHighestBalance() {
     TEST_END;
 }
 
+void test2DMatrixOperations() {
+    TEST_CASE("Module IV: 2D Matrix Addition, Multiplication, Transpose");
+    BranchMatrix A = { 2, 2, {{1, 2}, {3, 4}} };
+    BranchMatrix B = { 2, 2, {{5, 6}, {7, 8}} };
+
+    BranchMatrix Sum = matrixAdd(A, B);
+    ASSERT_EQ(Sum.data[0][0], 6LL);
+    ASSERT_EQ(Sum.data[1][1], 12LL);
+
+    BranchMatrix Transposed = matrixTranspose(A);
+    ASSERT_EQ(Transposed.data[0][1], 3LL);
+    ASSERT_EQ(Transposed.data[1][0], 2LL);
+
+    BranchMatrix Product = matrixMultiply(A, B);
+    ASSERT_EQ(Product.data[0][0], 19LL); // 1*5 + 2*7 = 19
+    ASSERT_EQ(Product.data[1][1], 50LL); // 3*6 + 4*8 = 50
+    TEST_END;
+}
+
+void testStringManipulations() {
+    TEST_CASE("Module V: String Reversal, Tokenization, Pattern Matching");
+    string orig = "hello world";
+    ASSERT_EQ(reverseString(orig), string("dlrow olleh"));
+
+    vector<string> tokens = tokenizeString("apple,banana,cherry", ',');
+    ASSERT_EQ(static_cast<int>(tokens.size()), 3);
+    ASSERT_EQ(tokens[1], string("banana"));
+
+    ASSERT_TRUE(patternMatchNaive("bank account number", "account"));
+    ASSERT_TRUE(!patternMatchNaive("bank account number", "xyz"));
+    TEST_END;
+}
+
+void testStackOperations() {
+    TEST_CASE("Module VIII: Array Stack, Parenthesis Matching, Expression Evaluation");
+    ArrayStack st;
+    stackInit(st);
+    ASSERT_TRUE(stackIsEmpty(st));
+
+    Transaction t1 = {1, 1001, "DEPOSIT", 5000, 5000, "2026-01-01"};
+    ASSERT_TRUE(stackPush(st, t1));
+    ASSERT_TRUE(!stackIsEmpty(st));
+
+    Transaction popped;
+    ASSERT_TRUE(stackPop(st, popped));
+    ASSERT_EQ(popped.txnId, 1);
+    ASSERT_TRUE(stackIsEmpty(st));
+
+    // Parentheses matching
+    ASSERT_TRUE(checkParenthesisMatching("{[a+b]*(c-d)}"));
+    ASSERT_TRUE(!checkParenthesisMatching("{[a+b}*c)"));
+
+    // Expression evaluation
+    ASSERT_EQ(evaluateInfixExpression("(10 + 20) * 3"), 90);
+    ASSERT_EQ(evaluateInfixExpression("10 + 2 * 5"), 20);
+    TEST_END;
+}
+
+void testQueueOperations() {
+    TEST_CASE("Module IX: Linear Queue, Circular Queue, Priority Queue");
+    // Linear Queue
+    ArrayQueue q;
+    queueInit(q);
+    ASSERT_TRUE(queueIsEmpty(q));
+    ASSERT_TRUE(queueEnqueue(q, 101));
+    ASSERT_TRUE(queueEnqueue(q, 102));
+    int tOut;
+    ASSERT_TRUE(queueDequeue(q, tOut));
+    ASSERT_EQ(tOut, 101);
+
+    // Circular Queue
+    CircularQueue cq;
+    circularQueueInit(cq);
+    ASSERT_TRUE(circularQueueEnqueue(cq, 201));
+    ASSERT_TRUE(circularQueueEnqueue(cq, 202));
+    ASSERT_TRUE(circularQueueDequeue(cq, tOut));
+    ASSERT_EQ(tOut, 201);
+
+    // Priority Queue
+    PriorityQueue pq;
+    priorityQueueInit(pq);
+    priorityQueueEnqueue(pq, 1, 5, "Normal");
+    priorityQueueEnqueue(pq, 2, 100, "VIP");
+    PriorityToken pt;
+    ASSERT_TRUE(priorityQueueDequeue(pq, pt));
+    ASSERT_EQ(pt.token, 2); // Higher priority dequeued first
+    TEST_END;
+}
+
 int main() {
     cout << "=======================================================\n";
     cout << "  RUNNING HAND-ROLLED DSA ALGORITHM UNIT TESTS\n";
@@ -177,6 +267,10 @@ int main() {
     testSortAscendingDescending();
     testSortEdgeCasesAndStability();
     testHighestBalance();
+    test2DMatrixOperations();
+    testStringManipulations();
+    testStackOperations();
+    testQueueOperations();
 
     cout << "=======================================================\n";
     cout << "  RESULTS: " << g_testsPassed << " passed, " << g_testsFailed << " failed.\n";

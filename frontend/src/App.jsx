@@ -104,6 +104,7 @@ export default function App() {
       showToast(data.message);
       setShowAddModal(false);
       setAddForm({ name: '', phone: '', email: '', accountType: 'SAVINGS', openingDeposit: '' });
+      setSortOrder('latest');
       fetchCustomers();
     } catch (err) {
       showToast(err.message, 'error');
@@ -187,6 +188,8 @@ export default function App() {
     let maxBal = -1;
     customers.forEach(c => { if (c.balancePaise > maxBal) maxBal = c.balancePaise; });
     displayedCustomers = customers.filter(c => c.balancePaise === maxBal);
+  } else if (sortOrder === 'latest') {
+    displayedCustomers.sort((a, b) => (b.accountNo || b.id || 0) - (a.accountNo || a.id || 0));
   } else if (sortOrder === 'asc') {
     // Hand-rolled Insertion Sort Ascending
     for (let i = 1; i < displayedCustomers.length; i++) {
@@ -346,6 +349,12 @@ export default function App() {
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button 
+                className={`action-btn ${sortOrder === 'latest' ? 'btn-gradient-primary' : 'btn-glass'}`}
+                onClick={() => { setHighestOnly(false); setSortOrder(prev => prev === 'latest' ? 'none' : 'latest'); }}
+              >
+                <Sparkles size={16} /> Latest First
+              </button>
+              <button 
                 className={`action-btn ${sortOrder === 'asc' ? 'btn-gradient-primary' : 'btn-glass'}`}
                 onClick={() => { setHighestOnly(false); setSortOrder(prev => prev === 'asc' ? 'none' : 'asc'); }}
               >
@@ -374,6 +383,15 @@ export default function App() {
                 <Plus size={20} /> Open New Account
               </button>
             </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', padding: '0 4px' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              Showing <strong style={{ color: '#38bdf8' }}>{filteredCustomers.length}</strong> of <strong style={{ color: '#a5b4fc' }}>{customers.length}</strong> Total Customer Accounts
+            </span>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              ↕ Scroll table or use "Latest First" / "Sort" controls to view all rows
+            </span>
           </div>
 
           <div className="table-wrapper">
@@ -425,7 +443,7 @@ export default function App() {
                         <button 
                           className="action-btn btn-glass"
                           style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                          onClick={() => { setHistoryAccNo(c.accountNo); fetchTransactions(c.accountNo); setActiveTab('audit'); }}
+                          onClick={() => { setHistoryAccNo(c.accountNo); fetchTransactions(c.accountNo); setActiveTab('history'); }}
                         >
                           History
                         </button>

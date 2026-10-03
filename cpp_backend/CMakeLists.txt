@@ -50,6 +50,7 @@ add_executable(bank_app
     src/Database.cpp
     src/Bank.cpp
     src/Utils.cpp
+    src/SyllabusDS.cpp
 )
 
 if(LIBPQ_LIBRARY)
@@ -62,6 +63,7 @@ add_executable(test_algorithms
     src/Bank.cpp
     src/Utils.cpp
     src/Database.cpp
+    src/SyllabusDS.cpp
 )
 
 if(LIBPQ_LIBRARY)

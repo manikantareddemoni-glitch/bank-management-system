@@ -21,6 +21,11 @@
   },
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/SyllabusDS.cpp",
+    "file": "cpp_backend/src/SyllabusDS.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
     "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c tests/test_algorithms.cpp",
     "file": "tests/test_algorithms.cpp"
   }
