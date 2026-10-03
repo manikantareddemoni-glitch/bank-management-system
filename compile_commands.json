@@ -1,32 +1,7 @@
 [
   {
     "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/main.cpp",
-    "file": "cpp_backend/src/main.cpp"
-  },
-  {
-    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/Bank.cpp",
-    "file": "cpp_backend/src/Bank.cpp"
-  },
-  {
-    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/Database.cpp",
-    "file": "cpp_backend/src/Database.cpp"
-  },
-  {
-    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/Utils.cpp",
-    "file": "cpp_backend/src/Utils.cpp"
-  },
-  {
-    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c cpp_backend/src/SyllabusDS.cpp",
-    "file": "cpp_backend/src/SyllabusDS.cpp"
-  },
-  {
-    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
-    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Icpp_backend/include -IC:/Users/shekar/tools/pgsql/include -c tests/test_algorithms.cpp",
-    "file": "tests/test_algorithms.cpp"
+    "command": "g++ -std=c++17 -c bank_management_system.cpp",
+    "file": "bank_management_system.cpp"
   }
 ]
