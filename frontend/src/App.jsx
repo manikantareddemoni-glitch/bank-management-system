@@ -3,7 +3,8 @@ import {
   Building2, Users, CreditCard, ArrowUpRight, ArrowDownLeft, 
   Search, Plus, RefreshCw, Trash2, Activity, 
   TrendingUp, CheckCircle2, AlertTriangle, 
-  Sparkles, DollarSign, Wallet, ArrowRight, Award
+  Sparkles, DollarSign, Wallet, ArrowRight, Award,
+  ChevronDown, ChevronUp
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -27,6 +28,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('latest'); // 'latest', 'none', 'asc', 'desc'
   const [highestOnly, setHighestOnly] = useState(false);
+  const [showAllCustomers, setShowAllCustomers] = useState(false);
 
 
   
@@ -248,12 +250,18 @@ export default function App() {
     }
   }
 
+  const INITIAL_VISIBLE_COUNT = 6;
+
   const filteredCustomers = displayedCustomers.filter(c => 
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.accountNo.toString().includes(searchTerm) ||
     (c.id && c.id.toString().includes(searchTerm)) ||
     c.phone.includes(searchTerm)
   );
+
+  const visibleCustomers = showAllCustomers 
+    ? filteredCustomers 
+    : filteredCustomers.slice(0, INITIAL_VISIBLE_COUNT);
 
 
   return (
@@ -424,12 +432,29 @@ export default function App() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', padding: '0 4px' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-              Showing <strong style={{ color: '#38bdf8' }}>{filteredCustomers.length}</strong> of <strong style={{ color: '#a5b4fc' }}>{customers.length}</strong> Total Customer Accounts
-            </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 4px', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                Showing <strong style={{ color: '#38bdf8' }}>{visibleCustomers.length}</strong> of <strong style={{ color: '#a5b4fc' }}>{filteredCustomers.length}</strong> {filteredCustomers.length !== customers.length ? `(matching ${customers.length} total)` : 'Total Customer Accounts'}
+              </span>
+              {!showAllCustomers && filteredCustomers.length > INITIAL_VISIBLE_COUNT && (
+                <span style={{
+                  color: '#38bdf8',
+                  fontSize: '0.75rem',
+                  background: 'rgba(56, 189, 248, 0.12)',
+                  padding: '3px 10px',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  fontWeight: 700
+                }}>
+                  Showing First 6 Only
+                </span>
+              )}
+            </div>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              ↕ Scroll table or use "Latest First" / "Sort" controls to view all rows
+              {filteredCustomers.length > INITIAL_VISIBLE_COUNT 
+                ? (showAllCustomers ? 'All accounts displayed • Click "Show Less" below to collapse' : `+${filteredCustomers.length - INITIAL_VISIBLE_COUNT} more accounts available below`)
+                : 'All matching accounts shown'}
             </span>
           </div>
 
@@ -448,7 +473,7 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {filteredCustomers.map(c => (
+                {visibleCustomers.map(c => (
                   <tr key={c.accountNo}>
                     <td>
                       <span className="id-tag">#{c.id}</span>
@@ -497,7 +522,7 @@ export default function App() {
                     </td>
                   </tr>
                 ))}
-                {filteredCustomers.length === 0 && (
+                {visibleCustomers.length === 0 && (
                   <tr>
                     <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
                       No matching customer accounts found in portfolio.
@@ -507,6 +532,38 @@ export default function App() {
               </tbody>
             </table>
           </div>
+
+          {/* Show More / Show Less Toggle Button */}
+          {filteredCustomers.length > INITIAL_VISIBLE_COUNT && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '24px' }}>
+              <button 
+                className={`action-btn ${showAllCustomers ? 'btn-glass' : 'btn-gradient-primary'}`}
+                style={{ 
+                  padding: '13px 32px', 
+                  fontSize: '0.94rem', 
+                  borderRadius: '16px', 
+                  cursor: 'pointer', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '10px',
+                  boxShadow: showAllCustomers ? 'none' : '0 4px 20px rgba(99, 102, 241, 0.4)'
+                }}
+                onClick={() => setShowAllCustomers(prev => !prev)}
+              >
+                {showAllCustomers ? (
+                  <>
+                    <ChevronUp size={18} />
+                    <span>Show Less (Display First 6 Only)</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={18} />
+                    <span>Show More Accounts ({filteredCustomers.length - INITIAL_VISIBLE_COUNT} More)</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
