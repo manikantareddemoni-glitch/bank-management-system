@@ -49,11 +49,31 @@ export default function App() {
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 4500);
   };
 
+  const handleReconnect = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/reconnect`, { method: 'POST' });
+      const data = await res.json();
+      if (data.connected) {
+        setDbStatus({ connected: true, message: data.message });
+        showToast('Connected to MongoDB Atlas Cluster!', 'success');
+        fetchCustomers();
+      } else {
+        setDbStatus({ connected: false, message: 'Local Persistence Active (data.json).' });
+        showToast('MongoDB connection failed. Operating on Local Data.', 'error');
+      }
+    } catch (err) {
+      setDbStatus({ connected: false, message: 'Node backend server offline' });
+    }
+  };
+
   const checkHealth = async () => {
     try {
       const res = await fetch(`${API_BASE}/health`);
       const data = await res.json();
       setDbStatus(data);
+      if (!data.connected) {
+        handleReconnect();
+      }
     } catch (err) {
       setDbStatus({ connected: false, message: 'Node backend server offline' });
     }
@@ -79,7 +99,11 @@ export default function App() {
     setSearchTerm('');
     checkHealth();
     fetchCustomers();
-    showToast('Portfolio reloaded from server');
+    if (!dbStatus.connected) {
+      handleReconnect();
+    } else {
+      showToast('Portfolio reloaded from server');
+    }
   };
 
   useEffect(() => {
@@ -247,7 +271,12 @@ export default function App() {
           <div className="brand-info">
             <h1>Apex Bank Suite</h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '2px' }}>
-              <span className="status-indicator">
+              <span 
+                className="status-indicator"
+                style={{ cursor: 'pointer' }}
+                onClick={handleReconnect}
+                title="Click to attempt instant MongoDB Atlas connection"
+              >
                 <span className={dbStatus.connected ? 'dot-green' : 'dot-red'}></span>
                 {dbStatus.connected ? 'MongoDB Atlas Connected' : dbStatus.message}
               </span>

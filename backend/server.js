@@ -113,13 +113,8 @@ function getConnectionString() {
     return "mongodb+srv://System:System@cluster0.n9s4euu.mongodb.net/apex_bank?retryWrites=true&w=majority";
 }
 
-async function connectMongoDB() {
-    const connStr = getConnectionString();
+async function onMongoDBConnected() {
     try {
-        await mongoose.connect(connStr, { serverSelectionTimeoutMS: 4000 });
-        console.log("Connected to MongoDB Atlas!");
-        
-        // Initial sync of existing customers if collection is empty
         const count = await CustomerModel.countDocuments();
         if (count === 0 && localData.customers.length > 0) {
             console.log("Seeding MongoDB with local data.json records...");
@@ -138,12 +133,54 @@ async function connectMongoDB() {
             localData.nextTxnId = maxTxn + 1;
             saveLocalData(localData);
         }
-    } catch (err) {
-        console.log("MongoDB Atlas not connected (Using Localhost data.json):", err.message);
+    } catch (e) {
+        console.error("Error on MongoDB sync:", e.message);
+    }
+}
+
+let isConnecting = false;
+
+async function connectMongoDB() {
+    if (mongoose.connection.readyState === 1) return true;
+    if (isConnecting) return false;
+    isConnecting = true;
+
+    const connStr = getConnectionString();
+
+    // Attempt 1: Standard Connection
+    try {
+        await mongoose.connect(connStr, { serverSelectionTimeoutMS: 8000 });
+        console.log("Connected to MongoDB Atlas!");
+        await onMongoDBConnected();
+        isConnecting = false;
+        return true;
+    } catch (err1) {
+        console.log("Standard DNS Connection attempt failed:", err1.message);
+    }
+
+    // Attempt 2: Fallback with Google & Cloudflare Public DNS
+    try {
+        try { dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']); } catch(e) {}
+        await mongoose.connect(connStr, { serverSelectionTimeoutMS: 8000 });
+        console.log("Connected to MongoDB Atlas using Fallback DNS!");
+        await onMongoDBConnected();
+        isConnecting = false;
+        return true;
+    } catch (err2) {
+        console.log("MongoDB Atlas not connected (Using Localhost data.json):", err2.message);
+        isConnecting = false;
+        return false;
     }
 }
 
 connectMongoDB();
+
+// Auto-reconnect background heartbeat interval
+setInterval(() => {
+    if (mongoose.connection.readyState !== 1) {
+        connectMongoDB();
+    }
+}, 10000);
 
 function parseMoneyToPaise(inputStr) {
     if (typeof inputStr === 'number') inputStr = inputStr.toString();
@@ -193,6 +230,15 @@ app.get('/api/health', async (req, res) => {
             mode: 'Local Data Active (data.json)',
             message: 'Local Persistence Active (data.json).'
         });
+    }
+});
+
+app.post('/api/reconnect', async (req, res) => {
+    const success = await connectMongoDB();
+    if (success) {
+        return res.json({ connected: true, message: 'Connected to MongoDB Atlas Cluster' });
+    } else {
+        return res.status(500).json({ connected: false, message: 'MongoDB reconnection attempt failed.' });
     }
 });
 
