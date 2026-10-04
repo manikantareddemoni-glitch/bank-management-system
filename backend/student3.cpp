@@ -1,44 +1,40 @@
 #include "bank.h"
 
-using namespace std;
-
-// ====================================================================================================
-// ====================================================================================================
-//   STUDENT 3: SORTING ALGORITHMS & 2D MATRIX OPERATIONS (MODULES III, IV, VII)
-// ====================================================================================================
-// ====================================================================================================
-// Responsibilities:
-// 1. Insertion Sort Algorithm implementation for sorting customers by balance (Ascending & Descending)
-// 2. Sorting time complexity analysis (O(n^2) worst/average case, O(n) best case)
-// 3. 2D Array Matrix Operations (Module IV):
+// ============================================================================
+//   STUDENT 3: SORTING ALGORITHMS & 2D MATRIX OPERATIONS
+// ============================================================================
+// Key Topics Covered:
+// 1. Insertion Sort Algorithm (Sorting customer records by balance using for & while loops)
+// 2. 2D Arrays / Matrices (2x2 Matrix arithmetic)
+// 3. Nested For Loops:
 //    - Matrix Addition
 //    - Matrix Subtraction
 //    - Matrix Multiplication
-//    - Matrix Transposition
-// ====================================================================================================
+//    - Matrix Transpose (swapping rows and columns)
+// ============================================================================
 
 /**
- * Student 3 Function: Insertion Sort Algorithm (Sorting by Balance)
- * ----------------------------------------------------------------
+ * Function: Insertion Sort by Balance
  * Explanation:
- *   - Inserts elements one-by-one into their sorted position by shifting adjacent elements.
- *   - Time Complexity:  O(n^2) worst/average case, O(n) best case [Module VII]
- *   - Space Complexity: O(1) in-place sort
+ * - Iterates through array from index 1 to n-1 using a for loop.
+ * - Stores current element in `key`.
+ * - Uses a while loop to shift elements that are greater (or smaller) to the right.
+ * - Places `key` at its correct position (j + 1).
  */
 void insertionSortByBalance(vector<Customer>& arr, bool ascending) {
-    int n = static_cast<int>(arr.size());
+    int n = (int)arr.size();
     for (int i = 1; i < n; i++) {
         Customer key = arr[i];
         int j = i - 1;
 
         if (ascending) {
-            // Shift elements with larger balance to the right
+            // Ascending Order (Lowest to Highest): Shift larger elements right
             while (j >= 0 && arr[j].balance > key.balance) {
                 arr[j + 1] = arr[j];
                 j = j - 1;
             }
         } else {
-            // Shift elements with smaller balance to the right (Descending)
+            // Descending Order (Highest to Lowest): Shift smaller elements right
             while (j >= 0 && arr[j].balance < key.balance) {
                 arr[j + 1] = arr[j];
                 j = j - 1;
@@ -49,57 +45,67 @@ void insertionSortByBalance(vector<Customer>& arr, bool ascending) {
 }
 
 /**
- * Student 3 Function: Sort Customers Menu Handler
+ * Function: Sort Customers Menu Option
+ * Explanation: Asks user for sorting preference (Ascending/Descending) and sorts the list.
  */
 void sortCustomers() {
-    cout << "\n--- [STUDENT 3] SORT CUSTOMERS BY BALANCE (INSERTION SORT O(n^2)) ---\n";
-    cout << " 1. Ascending Order (Lowest to Highest Balance)\n";
-    cout << " 2. Descending Order (Highest to Lowest Balance)\n";
-    cout << " Enter choice (1 or 2): ";
+    cout << "\n--- [STUDENT 3] SORT CUSTOMERS BY BALANCE (INSERTION SORT) ---\n";
+    cout << "1. Ascending Order (Lowest to Highest Balance)\n";
+    cout << "2. Descending Order (Highest to Lowest Balance)\n";
+    cout << "Enter your choice (1 or 2): ";
     int choice;
     cin >> choice;
 
     bool asc = (choice == 1);
     insertionSortByBalance(customerList, asc);
 
-    cout << " [OK] Customer records successfully sorted.\n";
+    cout << "\n[SUCCESS] Customer list sorted successfully!\n";
     displayAllCustomers();
 }
 
 /**
- * Student 3 Function: Helper to print 2x2 Matrix
+ * Function: Helper to print a 2x2 Matrix
+ * Explanation: Uses two nested for loops to print rows and columns with tabs.
  */
 void print2DMatrix(string title, int mat[2][2]) {
-    cout << "\n--- " << title << " (2x2 Matrix) ---\n";
+    cout << "\n" << title << ":\n";
     for (int i = 0; i < 2; i++) {
-        cout << "  [ ";
+        cout << "  ";
         for (int j = 0; j < 2; j++) {
-            cout << setw(6) << mat[i][j] << " ";
+            cout << mat[i][j] << "\t";
         }
-        cout << "]\n";
+        cout << "\n";
     }
 }
 
 /**
- * Student 3 Function: 2D Numeric Array Matrix Operations (Module IV)
+ * Function: 2D Matrix Operations Demonstration
  * Explanation:
- *   1. Matrix Addition: C[i][j] = A[i][j] + B[i][j]
- *   2. Matrix Subtraction: Diff[i][j] = A[i][j] - B[i][j]
- *   3. Matrix Multiplication: Mult[i][j] = Sum(A[i][k] * B[k][j])
- *   4. Matrix Transpose: Trans[j][i] = A[i][j] (Swap rows & columns)
+ * Demonstrates basic 2D array matrix mathematics:
+ * 1. Matrix Addition:       Sum[i][j]   = A[i][j] + B[i][j]
+ * 2. Matrix Subtraction:    Diff[i][j]  = A[i][j] - B[i][j]
+ * 3. Matrix Multiplication: Mult[i][j] += A[i][k] * B[k][j]
+ * 4. Matrix Transpose:      Trans[j][i] = A[i][j]
  */
 void demoMatrixOperations() {
-    cout << "\n=======================================================\n";
-    cout << "  [STUDENT 3] MODULE IV: 2D ARRAY & MATRIX DEMONSTRATION \n";
-    cout << "=======================================================\n";
+    cout << "\n===============================================================\n";
+    cout << "       [STUDENT 3] 2D ARRAY & MATRIX OPERATIONS DEMO           \n";
+    cout << "===============================================================\n";
 
-    int A[2][2] = {{1000, 2000}, {1500, 2500}};
-    int B[2][2] = {{500,  1200}, {800,  1400}};
+    // Two sample 2x2 matrices representing branch cash flows
+    int A[2][2] = {
+        {1000, 2000},
+        {1500, 2500}
+    };
+    int B[2][2] = {
+        {500,  1200},
+        {800,  1400}
+    };
 
-    print2DMatrix("Branch A Cash Flow", A);
-    print2DMatrix("Branch B Cash Flow", B);
+    print2DMatrix("Matrix A (Branch 1 Cash Flow)", A);
+    print2DMatrix("Matrix B (Branch 2 Cash Flow)", B);
 
-    // 1. Matrix Addition
+    // 1. Matrix Addition (Sum = A + B)
     int Sum[2][2];
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
@@ -108,7 +114,7 @@ void demoMatrixOperations() {
     }
     print2DMatrix("1. Matrix Addition (A + B)", Sum);
 
-    // 2. Matrix Subtraction
+    // 2. Matrix Subtraction (Diff = A - B)
     int Diff[2][2];
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
@@ -117,23 +123,26 @@ void demoMatrixOperations() {
     }
     print2DMatrix("2. Matrix Subtraction (A - B)", Diff);
 
-    // 3. Matrix Multiplication
-    int Mult[2][2] = {{0, 0}, {0, 0}};
+    // 3. Matrix Multiplication (Mult = A * B)
+    int Mult[2][2] = {
+        {0, 0},
+        {0, 0}
+    };
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 2; k++) {
-                Mult[i][j] += A[i][k] * B[k][j];
+                Mult[i][j] = Mult[i][j] + (A[i][k] * B[k][j]);
             }
         }
     }
     print2DMatrix("3. Matrix Multiplication (A * B)", Mult);
 
-    // 4. Matrix Transpose
+    // 4. Matrix Transpose (Swap rows and columns)
     int Trans[2][2];
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
             Trans[j][i] = A[i][j];
         }
     }
-    print2DMatrix("4. Matrix Transpose of A (Rows <-> Columns)", Trans);
+    print2DMatrix("4. Transpose of Matrix A", Trans);
 }

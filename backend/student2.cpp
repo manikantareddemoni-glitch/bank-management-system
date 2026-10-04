@@ -1,52 +1,47 @@
 #include "bank.h"
 
-using namespace std;
-
-// ====================================================================================================
-// ====================================================================================================
-//   STUDENT 2: FINANCIAL TRANSACTIONS & SEARCH ALGORITHMS (MODULES II, III, VII)
-// ====================================================================================================
-// ====================================================================================================
-// Responsibilities:
-// 1. Linear Search Implementation (O(n) unsorted lookups by phone number)
-// 2. Binary Search Implementation (O(log n) sorted divide-and-conquer lookups by account number)
-// 3. Deposit transaction processing with ledger journaling
-// 4. Withdrawal transaction processing with SAVINGS minimum balance constraint enforcement
-// 5. Transaction Audit Ledger display for compliance
-// ====================================================================================================
+// ============================================================================
+//   STUDENT 2: FINANCIAL TRANSACTIONS & SEARCH ALGORITHMS
+// ============================================================================
+// Key Topics Covered:
+// 1. Linear Search Algorithm (O(n) - checking each element using a for loop)
+// 2. Binary Search Algorithm (O(log n) - divide and conquer using a while loop)
+// 3. Conditional Statements (if-else for deposit, withdrawal & minimum balance checks)
+// 4. Updating Struct Data & Logging Transactions
+// ============================================================================
 
 /**
- * Student 2 Function: Linear Search Algorithm (Unsorted search by phone number)
- * ----------------------------------------------------------------------------
+ * Function: Linear Search by Phone Number
  * Explanation:
- *   - Starts from index 0 and compares phone numbers sequentially.
- *   - Time Complexity:  O(n) [Module VII]
- *   - Space Complexity: O(1)
+ * - Starts from index 0 and goes to the end of the array using a for loop.
+ * - Compares each customer's phone with targetPhone.
+ * - Returns index if matched, otherwise returns -1.
  */
 int linearSearchByPhone(const vector<Customer>& arr, string targetPhone) {
-    for (size_t i = 0; i < arr.size(); i++) {
+    int total = arr.size();
+    for (int i = 0; i < total; i++) {
         if (arr[i].phone == targetPhone) {
-            return static_cast<int>(i); // Found at index i
+            return i; // Found at index i
         }
     }
     return -1; // Not found
 }
 
 /**
- * Student 2 Function: Binary Search Algorithm (Sorted search by Account Number)
- * ----------------------------------------------------------------------------
+ * Function: Binary Search by Account Number
  * Explanation:
- *   - Precondition: Array MUST be sorted by accountNo.
- *   - Divides search range in half each step using mid = low + (high - low) / 2.
- *   - Time Complexity:  O(log n) [Module VII]
- *   - Space Complexity: O(1)
+ * - Requires array to be sorted by account number.
+ * - Uses low, high and mid pointers in a while loop.
+ * - If target is at mid, returns mid.
+ * - If target is greater, search right half (low = mid + 1).
+ * - If target is smaller, search left half (high = mid - 1).
  */
 int binarySearchByAccountNo(const vector<Customer>& arr, int targetAccNo) {
     int low = 0;
-    int high = static_cast<int>(arr.size()) - 1;
+    int high = (int)arr.size() - 1;
 
     while (low <= high) {
-        int mid = low + (high - low) / 2;
+        int mid = (low + high) / 2;
 
         if (arr[mid].accountNo == targetAccNo) {
             return mid; // Found
@@ -60,159 +55,191 @@ int binarySearchByAccountNo(const vector<Customer>& arr, int targetAccNo) {
 }
 
 /**
- * Student 2 Function: Deposit Funds
- * Explanation: Finds account via Binary Search, increases balance, and creates an audit transaction log.
+ * Function: Deposit Money
+ * Explanation:
+ * 1. Takes account number and searches using Binary Search.
+ * 2. Adds deposit amount to balance.
+ * 3. Records a new transaction in transactionList.
  */
 void depositFunds() {
     cout << "\n--- [STUDENT 2] DEPOSIT FUNDS ---\n";
     int accNo;
     double amount;
 
-    cout << " Enter Account Number: ";
+    cout << "Enter Account Number: ";
     cin >> accNo;
 
     int idx = binarySearchByAccountNo(customerList, accNo);
     if (idx == -1) {
-        cout << " [ERROR] Account number " << accNo << " not found!\n";
+        cout << "\n[ERROR] Account Number " << accNo << " not found!\n";
         return;
     }
 
-    cout << " Enter Amount to Deposit (Rs.): ";
+    cout << "Customer Name: " << customerList[idx].name << "\n";
+    cout << "Current Balance: Rs. " << customerList[idx].balance << "\n";
+    cout << "Enter Amount to Deposit (Rs.): ";
     cin >> amount;
 
     if (amount <= 0) {
-        cout << " [ERROR] Deposit amount must be greater than 0!\n";
+        cout << "\n[ERROR] Deposit amount must be greater than 0!\n";
         return;
     }
 
-    customerList[idx].balance += amount;
+    // Add amount to balance
+    customerList[idx].balance = customerList[idx].balance + amount;
 
-    // Log transaction
-    Transaction t = { nextTxnId++, accNo, "DEPOSIT", amount, customerList[idx].balance };
+    // Record transaction
+    Transaction t;
+    t.txnId = nextTxnId;
+    nextTxnId = nextTxnId + 1;
+    t.accountNo = accNo;
+    t.type = "DEPOSIT";
+    t.amount = amount;
+    t.balanceAfter = customerList[idx].balance;
     transactionList.push_back(t);
 
-    cout << " [OK] Deposit successful! Updated Balance: Rs. " << fixed << setprecision(2) << customerList[idx].balance << "\n";
+    cout << "\n[SUCCESS] Deposit successful!\n";
+    cout << "Updated Balance: Rs. " << customerList[idx].balance << "\n";
 }
 
 /**
- * Student 2 Function: Withdraw Funds
- * Explanation: Validates sufficient balance and minimum Rs. 500 limit for SAVINGS accounts.
+ * Function: Withdraw Money
+ * Explanation:
+ * 1. Takes account number and searches using Binary Search.
+ * 2. Checks if balance is sufficient.
+ * 3. Checks minimum balance limit (Rs. 500 for SAVINGS).
+ * 4. Deducts amount and records transaction.
  */
 void withdrawFunds() {
     cout << "\n--- [STUDENT 2] WITHDRAW FUNDS ---\n";
     int accNo;
     double amount;
 
-    cout << " Enter Account Number: ";
+    cout << "Enter Account Number: ";
     cin >> accNo;
 
     int idx = binarySearchByAccountNo(customerList, accNo);
     if (idx == -1) {
-        cout << " [ERROR] Account number " << accNo << " not found!\n";
+        cout << "\n[ERROR] Account Number " << accNo << " not found!\n";
         return;
     }
 
-    cout << " Enter Amount to Withdraw (Rs.): ";
+    cout << "Customer Name: " << customerList[idx].name << "\n";
+    cout << "Current Balance: Rs. " << customerList[idx].balance << "\n";
+    cout << "Enter Amount to Withdraw (Rs.): ";
     cin >> amount;
 
     if (amount <= 0) {
-        cout << " [ERROR] Withdrawal amount must be greater than 0!\n";
+        cout << "\n[ERROR] Withdrawal amount must be greater than 0!\n";
         return;
     }
 
+    // Check if account has enough money
     if (amount > customerList[idx].balance) {
-        cout << " [ERROR] Insufficient balance! Current Balance: Rs. " << customerList[idx].balance << "\n";
+        cout << "\n[ERROR] Insufficient balance! Available: Rs. " << customerList[idx].balance << "\n";
         return;
     }
 
-    double newBal = customerList[idx].balance - amount;
-    if (customerList[idx].accountType == "SAVINGS" && newBal < 500.0) {
-        cout << " [ERROR] Withdrawal rejected: SAVINGS balance cannot fall below Rs. 500.00!\n";
+    double newBalance = customerList[idx].balance - amount;
+
+    // Minimum balance check for SAVINGS account
+    if (customerList[idx].accountType == "SAVINGS" && newBalance < 500.0) {
+        cout << "\n[ERROR] Withdrawal rejected: SAVINGS balance cannot fall below Rs. 500!\n";
         return;
     }
 
-    customerList[idx].balance = newBal;
+    // Deduct amount
+    customerList[idx].balance = newBalance;
 
-    // Log transaction
-    Transaction t = { nextTxnId++, accNo, "WITHDRAW", amount, newBal };
+    // Record transaction
+    Transaction t;
+    t.txnId = nextTxnId;
+    nextTxnId = nextTxnId + 1;
+    t.accountNo = accNo;
+    t.type = "WITHDRAW";
+    t.amount = amount;
+    t.balanceAfter = newBalance;
     transactionList.push_back(t);
 
-    cout << " [OK] Withdrawal successful! Updated Balance: Rs. " << fixed << setprecision(2) << newBal << "\n";
+    cout << "\n[SUCCESS] Withdrawal successful!\n";
+    cout << "Remaining Balance: Rs. " << newBalance << "\n";
 }
 
 /**
- * Student 2 Function: Search by Account Number UI
+ * Function: Search Customer by Account Number
+ * Explanation: Uses Binary Search (O(log n)) to find and display customer details.
  */
 void searchByAccountNo() {
-    cout << "\n--- [STUDENT 2] SEARCH BY ACCOUNT NO (BINARY SEARCH O(log n)) ---\n";
+    cout << "\n--- [STUDENT 2] SEARCH BY ACCOUNT NUMBER (BINARY SEARCH) ---\n";
     int accNo;
-    cout << " Enter Account Number: ";
+    cout << "Enter Account Number to Search: ";
     cin >> accNo;
 
     int idx = binarySearchByAccountNo(customerList, accNo);
     if (idx != -1) {
-        cout << "\n [FOUND] Customer Details:\n";
-        cout << " Account No:   " << customerList[idx].accountNo << "\n";
-        cout << " Name:         " << customerList[idx].name << "\n";
-        cout << " Phone:        " << customerList[idx].phone << "\n";
-        cout << " Account Type: " << customerList[idx].accountType << "\n";
-        cout << " Balance:      Rs. " << fixed << setprecision(2) << customerList[idx].balance << "\n";
+        cout << "\n[FOUND] Customer Account Details:\n";
+        cout << "  Account Number : " << customerList[idx].accountNo << "\n";
+        cout << "  Customer Name  : " << customerList[idx].name << "\n";
+        cout << "  Phone Number   : " << customerList[idx].phone << "\n";
+        cout << "  Account Type   : " << customerList[idx].accountType << "\n";
+        cout << "  Current Balance: Rs. " << customerList[idx].balance << "\n";
+        cout << "  Branch / City  : " << customerList[idx].address.city << "\n";
     } else {
-        cout << " [!] Account number " << accNo << " not found.\n";
+        cout << "\n[!] No account found with Account Number: " << accNo << "\n";
     }
 }
 
 /**
- * Student 2 Function: Search by Phone Number UI
+ * Function: Search Customer by Phone Number
+ * Explanation: Uses Linear Search (O(n)) to find and display customer details.
  */
 void searchByPhone() {
-    cout << "\n--- [STUDENT 2] SEARCH BY PHONE NO (LINEAR SEARCH O(n)) ---\n";
+    cout << "\n--- [STUDENT 2] SEARCH BY PHONE NUMBER (LINEAR SEARCH) ---\n";
     string phone;
-    cout << " Enter 10-digit Phone Number: ";
+    cout << "Enter 10-digit Phone Number: ";
     cin >> phone;
 
     int idx = linearSearchByPhone(customerList, phone);
     if (idx != -1) {
-        cout << "\n [FOUND] Customer Details:\n";
-        cout << " Account No:   " << customerList[idx].accountNo << "\n";
-        cout << " Name:         " << customerList[idx].name << "\n";
-        cout << " Phone:        " << customerList[idx].phone << "\n";
-        cout << " Balance:      Rs. " << fixed << setprecision(2) << customerList[idx].balance << "\n";
+        cout << "\n[FOUND] Customer Account Details:\n";
+        cout << "  Account Number : " << customerList[idx].accountNo << "\n";
+        cout << "  Customer Name  : " << customerList[idx].name << "\n";
+        cout << "  Phone Number   : " << customerList[idx].phone << "\n";
+        cout << "  Account Type   : " << customerList[idx].accountType << "\n";
+        cout << "  Current Balance: Rs. " << customerList[idx].balance << "\n";
     } else {
-        cout << " [!] No customer found with phone: " << phone << "\n";
+        cout << "\n[!] No customer found with Phone Number: " << phone << "\n";
     }
 }
 
 /**
- * Student 2 Function: View Transaction Audit History
+ * Function: View Transaction History
+ * Explanation: Loops through all transactions and displays logs matching the given account.
  */
 void viewTransactionHistory() {
-    cout << "\n--- [STUDENT 2] AUDIT TRANSACTION HISTORY ---\n";
+    cout << "\n--- [STUDENT 2] VIEW TRANSACTION AUDIT HISTORY ---\n";
     int accNo;
-    cout << " Enter Account Number: ";
+    cout << "Enter Account Number: ";
     cin >> accNo;
 
-    cout << "\n--------------------------------------------------------------------\n";
-    cout << left << setw(10) << "Txn ID" 
-         << setw(12) << "Acc No" 
-         << setw(12) << "Type" 
-         << setw(16) << "Amount (Rs.)" 
-         << setw(18) << "Balance After (Rs.)" << "\n";
-    cout << "--------------------------------------------------------------------\n";
+    cout << "\n========================================================================\n";
+    cout << "                      TRANSACTION LOGS FOR ACCOUNT #" << accNo << "\n";
+    cout << "========================================================================\n";
 
-    int foundCount = 0;
-    for (size_t i = 0; i < transactionList.size(); i++) {
+    int count = 0;
+    for (int i = 0; i < (int)transactionList.size(); i++) {
         if (transactionList[i].accountNo == accNo) {
-            foundCount++;
-            cout << left << setw(10) << transactionList[i].txnId
-                 << setw(12) << transactionList[i].accountNo
-                 << setw(12) << transactionList[i].type
-                 << right << setw(14) << fixed << setprecision(2) << transactionList[i].amount << "  "
-                 << right << setw(16) << fixed << setprecision(2) << transactionList[i].balanceAfter << "\n";
+            count = count + 1;
+            cout << "Txn ID #" << transactionList[i].txnId
+                 << " | Type: " << transactionList[i].type
+                 << " | Amount: Rs. " << transactionList[i].amount
+                 << " | Balance After: Rs. " << transactionList[i].balanceAfter << "\n";
         }
     }
-    cout << "--------------------------------------------------------------------\n";
-    if (foundCount == 0) {
-        cout << " No transaction history found for Account #" << accNo << "\n";
+    cout << "========================================================================\n";
+    if (count == 0) {
+        cout << "No transaction records found for this account.\n";
+    } else {
+        cout << "Total Transactions: " << count << "\n";
     }
 }

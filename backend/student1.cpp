@@ -1,29 +1,43 @@
 #include "bank.h"
 
-using namespace std;
+// ============================================================================
+//   STUDENT 1: CUSTOMER ACCOUNT MANAGEMENT & BASIC DATA STRUCTURES
+// ============================================================================
+// Key Topics Covered:
+// 1. Structures (Customer struct with nested Date and Address structs)
+// 2. Arrays / Vectors (Storing customer records)
+// 3. For Loops (Iterating over customer records to display them)
+// 4. Input / Output with cin and cout
+// 5. Basic Bubble Sort with simple for loops (Sorting by Account Number)
+// ============================================================================
 
-// ====================================================================================================
-// ====================================================================================================
-//   STUDENT 1: ACCOUNT MANAGEMENT & DATA STRUCTURES (MODULES I, II, VI)
-// ====================================================================================================
-// ====================================================================================================
-// Responsibilities:
-// 1. Definition and initialization of global repository (customerList, transactionList)
-// 2. Struct nesting (Date and Address inside Customer entity)
-// 3. Pre-loading benchmark demo accounts (seedInitialData)
-// 4. Formatted tabular customer reporting using <iomanip> (displayAllCustomers)
-// 5. Account onboarding with input validation and duplicate detection (addNewCustomer)
-// ====================================================================================================
-
-// Global In-Memory Database Storage
+// Global storage for bank customers and transactions
 vector<Customer> customerList;
 vector<Transaction> transactionList;
-int nextAccountNo = 1007; // Auto-increment counter for new account numbers
-int nextTxnId = 7;        // Auto-increment counter for new transactions
+int nextAccountNo = 1007; // Counter for next customer account number
+int nextTxnId = 7;        // Counter for next transaction ID
 
 /**
- * Student 1 Function: Seed Initial Demo Data
- * Explanation: Pre-loads 6 demo customer records into memory.
+ * Function: Sort Accounts By Account Number
+ * Explanation: Uses basic Bubble Sort with two simple for loops.
+ * Keeps records sorted so Student 2's Binary Search works correctly.
+ */
+void sortAccountsByNumber() {
+    int n = customerList.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (customerList[j].accountNo > customerList[j + 1].accountNo) {
+                Customer temp = customerList[j];
+                customerList[j] = customerList[j + 1];
+                customerList[j + 1] = temp;
+            }
+        }
+    }
+}
+
+/**
+ * Function: Seed Initial Demo Data
+ * Explanation: Adds 6 initial sample customers so you can test the program right away.
  */
 void seedInitialData() {
     customerList.clear();
@@ -43,93 +57,120 @@ void seedInitialData() {
     customerList.push_back(c5);
     customerList.push_back(c6);
 
-    for (size_t i = 0; i < customerList.size(); i++) {
-        Transaction t = { static_cast<int>(i + 1), customerList[i].accountNo, "OPENING", customerList[i].balance, customerList[i].balance };
+    // Create initial opening transaction logs using a simple for loop
+    for (int i = 0; i < (int)customerList.size(); i++) {
+        Transaction t;
+        t.txnId = i + 1;
+        t.accountNo = customerList[i].accountNo;
+        t.type = "OPENING";
+        t.amount = customerList[i].balance;
+        t.balanceAfter = customerList[i].balance;
         transactionList.push_back(t);
     }
 }
 
 /**
- * Student 1 Function: Display All Customers in Tabular Format
- * Explanation: Iterates through customerList and formats output using setw() and setprecision().
+ * Function: Display All Customers
+ * Explanation: Uses a simple for loop to print all customer details.
+ * (No complex formatting functions used - plain standard cout).
  */
 void displayAllCustomers() {
-    if (customerList.empty()) {
-        cout << " [!] No customer records found.\n";
+    int total = customerList.size();
+    if (total == 0) {
+        cout << "\n[!] No customer records found.\n";
         return;
     }
 
-    cout << "\n--------------------------------------------------------------------------------------\n";
-    cout << left << setw(12) << "Acc No" 
-         << setw(20) << "Customer Name" 
-         << setw(15) << "Phone Number" 
-         << setw(12) << "Type" 
-         << setw(15) << "Balance (Rs.)" 
-         << setw(12) << "City" << "\n";
-    cout << "--------------------------------------------------------------------------------------\n";
+    cout << "\n========================================================================\n";
+    cout << "                    ALL CUSTOMER ACCOUNTS LIST                          \n";
+    cout << "========================================================================\n";
 
-    for (size_t i = 0; i < customerList.size(); i++) {
-        cout << left << setw(12) << customerList[i].accountNo
-             << setw(20) << customerList[i].name
-             << setw(15) << customerList[i].phone
-             << setw(12) << customerList[i].accountType
-             << right << setw(13) << fixed << setprecision(2) << customerList[i].balance << "  "
-             << left << setw(12) << customerList[i].address.city << "\n";
+    // Simple for loop to print each customer
+    for (int i = 0; i < total; i++) {
+        cout << "Record #" << (i + 1) << ":\n";
+        cout << "  Account Number : " << customerList[i].accountNo << "\n";
+        cout << "  Customer Name  : " << customerList[i].name << "\n";
+        cout << "  Phone Number   : " << customerList[i].phone << "\n";
+        cout << "  Account Type   : " << customerList[i].accountType << "\n";
+        cout << "  Current Balance: Rs. " << customerList[i].balance << "\n";
+        cout << "  Branch / City  : " << customerList[i].address.city << "\n";
+        cout << "------------------------------------------------------------------------\n";
     }
-    cout << "--------------------------------------------------------------------------------------\n";
-    cout << " Total records: " << customerList.size() << "\n";
+
+    cout << "Total Records: " << total << "\n";
 }
 
 /**
- * Student 1 Function: Add New Customer Account
- * Explanation: Takes customer inputs, validates minimum deposit (Rs. 500 for Savings),
- *              checks duplicate phone numbers via Student 2's linearSearchByPhone, and saves record.
+ * Function: Add New Customer Account
+ * Explanation:
+ * 1. Takes user input using cin and getline
+ * 2. Checks if phone already exists using Student 2's Linear Search
+ * 3. Validates minimum deposit (Rs. 500 for Savings)
+ * 4. Adds customer to list and sorts list by account number
  */
 void addNewCustomer() {
     cout << "\n--- [STUDENT 1] ADD NEW CUSTOMER ACCOUNT ---\n";
+    
     Customer newCust;
-    newCust.accountNo = nextAccountNo++;
+    newCust.accountNo = nextAccountNo;
+    nextAccountNo = nextAccountNo + 1;
 
-    cout << " Enter Customer Name: ";
+    cout << "Enter Customer Name: ";
     cin.ignore();
     getline(cin, newCust.name);
 
-    cout << " Enter 10-digit Phone Number: ";
+    cout << "Enter 10-digit Phone Number: ";
     cin >> newCust.phone;
 
-    // Check duplicate phone via Student 2's Linear Search
-    if (linearSearchByPhone(customerList, newCust.phone) != -1) {
-        cout << " [ERROR] Phone number already registered to another account!\n";
+    // Check duplicate phone number using linear search
+    int existingIndex = linearSearchByPhone(customerList, newCust.phone);
+    if (existingIndex != -1) {
+        cout << "\n[ERROR] Phone number already registered with another account!\n";
         return;
     }
 
-    cout << " Select Account Type (1 = SAVINGS, 2 = CURRENT): ";
+    cout << "Select Account Type (1 for SAVINGS, 2 for CURRENT): ";
     int typeChoice;
     cin >> typeChoice;
-    newCust.accountType = (typeChoice == 1) ? "SAVINGS" : "CURRENT";
+    if (typeChoice == 1) {
+        newCust.accountType = "SAVINGS";
+    } else {
+        newCust.accountType = "CURRENT";
+    }
 
-    cout << " Enter Initial Deposit Amount (Rs.): ";
+    cout << "Enter Initial Deposit Amount (Rs.): ";
     cin >> newCust.balance;
 
+    // Minimum balance check
     if (newCust.accountType == "SAVINGS" && newCust.balance < 500.0) {
-        cout << " [ERROR] SAVINGS account requires a minimum initial deposit of Rs. 500.00!\n";
+        cout << "\n[ERROR] SAVINGS account requires a minimum initial deposit of Rs. 500!\n";
         return;
     }
 
-    newCust.openedDate = {3, 10, 2026};
-    newCust.address = {"Hyderabad", "Telangana", "500001"};
+    // Default registration date and city
+    newCust.openedDate.day = 4;
+    newCust.openedDate.month = 10;
+    newCust.openedDate.year = 2026;
+    newCust.address.city = "Hyderabad";
+    newCust.address.state = "Telangana";
+    newCust.address.pincode = "500001";
 
-    // Insert into customer list
+    // Add customer to list
     customerList.push_back(newCust);
 
-    // Keep sorted by account number for Student 2's Binary Search
-    sort(customerList.begin(), customerList.end(), [](const Customer& a, const Customer& b) {
-        return a.accountNo < b.accountNo;
-    });
+    // Keep sorted by account number using our simple bubble sort
+    sortAccountsByNumber();
 
-    // Record Opening Transaction Log
-    Transaction t = { nextTxnId++, newCust.accountNo, "OPENING", newCust.balance, newCust.balance };
+    // Create an opening transaction record
+    Transaction t;
+    t.txnId = nextTxnId;
+    nextTxnId = nextTxnId + 1;
+    t.accountNo = newCust.accountNo;
+    t.type = "OPENING";
+    t.amount = newCust.balance;
+    t.balanceAfter = newCust.balance;
     transactionList.push_back(t);
 
-    cout << " [OK] Account created successfully! Allocated Account Number: " << newCust.accountNo << "\n";
+    cout << "\n[SUCCESS] Account created successfully!\n";
+    cout << "Assigned Account Number: " << newCust.accountNo << "\n";
 }

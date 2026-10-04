@@ -1,26 +1,25 @@
 #include "bank.h"
 
-using namespace std;
-
-// ====================================================================================================
-// ====================================================================================================
-//   STUDENT 4: STRING ALGORITHMS & STACK ADT (MODULES V, VIII)
-// ====================================================================================================
-// ====================================================================================================
-// Responsibilities:
-// 1. In-place String Reversal algorithm
-// 2. 256-bucket ASCII character frequency histogram analysis
-// 3. Naive substring pattern matching algorithm
-// 4. Array-based Stack Abstract Data Type (ADT) implementation (LIFO: Push, Pop, isFull, isEmpty)
-// 5. Stack application: Balanced parentheses verification for financial expression syntax
-// ====================================================================================================
+// ============================================================================
+//   STUDENT 4: STRING ALGORITHMS & STACK ABSTRACT DATA TYPE (ADT)
+// ============================================================================
+// Key Topics Covered:
+// 1. String Manipulation (Reversing a string with a simple for loop)
+// 2. Character Frequency Counting (Using a basic 256 array)
+// 3. Substring Pattern Matching (Using nested for and while loops)
+// 4. Stack Data Structure (LIFO - Last In First Out):
+//    - Array-based implementation (top index, push, pop, isEmpty, isFull)
+// 5. Stack Application: Balanced Parentheses Checking
+// ============================================================================
 
 /**
- * Student 4 Function: In-place String Reversal
- * Explanation: Swaps str[i] with str[n - 1 - i] moving inwards.
+ * Function: Reverse a String
+ * Explanation:
+ * - Uses a for loop up to length / 2.
+ * - Swaps str[i] with str[length - 1 - i] using a temporary character variable.
  */
 string reverseString(string str) {
-    int n = static_cast<int>(str.length());
+    int n = (int)str.length();
     for (int i = 0; i < n / 2; i++) {
         char temp = str[i];
         str[i] = str[n - 1 - i];
@@ -30,32 +29,42 @@ string reverseString(string str) {
 }
 
 /**
- * Student 4 Function: Character Frequency Counter
- * Explanation: Uses 256-bucket ASCII array to count each character.
+ * Function: Count Character Frequency in a String
+ * Explanation:
+ * - Uses an integer count array of size 256 initialized to 0.
+ * - Loops through the string and increments count[(unsigned char)str[i]].
+ * - Prints characters that appeared more than 0 times.
  */
 void countCharacterFrequency(string str) {
     int count[256] = {0};
+    int n = (int)str.length();
 
-    for (size_t i = 0; i < str.length(); i++) {
+    // Count each character
+    for (int i = 0; i < n; i++) {
         unsigned char ch = str[i];
         count[ch]++;
     }
 
-    cout << " Character Frequencies in \"" << str << "\":\n  ";
+    // Print frequencies
+    cout << "Character counts in \"" << str << "\":\n  ";
     for (int i = 0; i < 256; i++) {
         if (count[i] > 0 && i != ' ') {
-            cout << "'" << static_cast<char>(i) << "':" << count[i] << "  ";
+            cout << "'" << (char)i << "': " << count[i] << "   ";
         }
     }
     cout << "\n";
 }
 
 /**
- * Student 4 Function: Naive Pattern Search (Substring Matching)
+ * Function: Pattern Matching / Substring Search
+ * Explanation:
+ * - Checks if pattern exists in text.
+ * - Loops through text and compares characters of pattern one by one.
  */
 bool searchPattern(string text, string pattern) {
-    int n = static_cast<int>(text.length());
-    int m = static_cast<int>(pattern.length());
+    int n = (int)text.length();
+    int m = (int)pattern.length();
+
     if (m > n) return false;
 
     for (int i = 0; i <= n - m; i++) {
@@ -63,77 +72,113 @@ bool searchPattern(string text, string pattern) {
         while (j < m && text[i + j] == pattern[j]) {
             j++;
         }
-        if (j == m) return true;
+        if (j == m) {
+            return true; // Full pattern matched
+        }
     }
-    return false;
+    return false; // Not found
 }
 
 /**
- * Student 4 Function: String Manipulation Demo
+ * Function: String Operations Demo
  */
 void demoStringOperations() {
-    cout << "\n=======================================================\n";
-    cout << "  [STUDENT 4] MODULE V: STRING MANIPULATION DEMO       \n";
-    cout << "=======================================================\n";
+    cout << "\n===============================================================\n";
+    cout << "       [STUDENT 4] STRING OPERATIONS & PATTERN SEARCH DEMO     \n";
+    cout << "===============================================================\n";
 
-    string sample = "AURORA";
-    cout << " Original String: " << sample << "\n";
-    cout << " 1. Reversed String: " << reverseString(sample) << "\n";
-    cout << " 2. Frequency Analysis:\n";
-    countCharacterFrequency(sample);
+    string word = "BANKING";
+    cout << "1. Original String: " << word << "\n";
+    cout << "   Reversed String: " << reverseString(word) << "\n";
+
+    cout << "\n2. Frequency Analysis:\n";
+    countCharacterFrequency("SUCCESS");
 
     string text = "Bank Management System";
-    string query = "Management";
-    cout << " 3. Pattern Search in \"" << text << "\" for \"" << query << "\": ";
-    if (searchPattern(text, query))
+    string searchWord = "System";
+    cout << "\n3. Substring Search in \"" << text << "\" for \"" << searchWord << "\": ";
+    if (searchPattern(text, searchWord)) {
         cout << "[FOUND!]\n";
-    else
+    } else {
         cout << "[NOT FOUND]\n";
+    }
 }
 
+// ============================================================================
+// STACK ADT IMPLEMENTATION (LIFO - Last In, First Out)
+// ============================================================================
+
 /**
- * Student 4 Functions: Array-based Stack ADT (LIFO)
+ * Function: Initialize Stack
  */
 void initStack(SimpleStack& s) {
     s.top = -1;
 }
 
+/**
+ * Function: Check if Stack is Empty
+ */
 bool isStackEmpty(const SimpleStack& s) {
-    return (s.top == -1);
-}
-
-bool isStackFull(const SimpleStack& s) {
-    return (s.top == MAX_STACK - 1);
-}
-
-void push(SimpleStack& s, int val) {
-    if (isStackFull(s)) {
-        cout << " [ERROR] Stack Overflow!\n";
-        return;
+    if (s.top == -1) {
+        return true;
     }
-    s.arr[++s.top] = val;
-}
-
-int pop(SimpleStack& s) {
-    if (isStackEmpty(s)) {
-        cout << " [ERROR] Stack Underflow!\n";
-        return -1;
-    }
-    return s.arr[s.top--];
+    return false;
 }
 
 /**
- * Student 4 Function: Stack Application - Parenthesis Matching
+ * Function: Check if Stack is Full
+ */
+bool isStackFull(const SimpleStack& s) {
+    if (s.top == MAX_STACK - 1) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Function: Push an Element onto Stack
+ */
+void push(SimpleStack& s, int val) {
+    if (isStackFull(s)) {
+        cout << "\n[ERROR] Stack Overflow (Stack is full)!\n";
+        return;
+    }
+    s.top = s.top + 1;
+    s.arr[s.top] = val;
+}
+
+/**
+ * Function: Pop an Element from Stack
+ */
+int pop(SimpleStack& s) {
+    if (isStackEmpty(s)) {
+        cout << "\n[ERROR] Stack Underflow (Stack is empty)!\n";
+        return -1;
+    }
+    int val = s.arr[s.top];
+    s.top = s.top - 1;
+    return val;
+}
+
+/**
+ * Function: Stack Application - Check Balanced Parentheses
+ * Explanation:
+ * - Pushes 1 to stack when '(' is found.
+ * - Pops from stack when ')' is found.
+ * - If stack is empty at the end, parentheses are balanced.
  */
 bool isBalancedParentheses(string expr) {
     SimpleStack s;
     initStack(s);
+    int n = (int)expr.length();
 
-    for (size_t i = 0; i < expr.length(); i++) {
+    for (int i = 0; i < n; i++) {
         if (expr[i] == '(') {
             push(s, 1);
         } else if (expr[i] == ')') {
-            if (isStackEmpty(s)) return false;
+            if (isStackEmpty(s)) {
+                return false;
+            }
             pop(s);
         }
     }
@@ -141,29 +186,29 @@ bool isBalancedParentheses(string expr) {
 }
 
 /**
- * Student 4 Function: Stack ADT Demo
+ * Function: Stack ADT Demo
  */
 void demoStack() {
-    cout << "\n=======================================================\n";
-    cout << "  [STUDENT 4] MODULE VIII: STACK ADT DEMONSTRATION     \n";
-    cout << "=======================================================\n";
+    cout << "\n===============================================================\n";
+    cout << "       [STUDENT 4] STACK ADT & APPLICATION DEMO               \n";
+    cout << "===============================================================\n";
 
     SimpleStack myStack;
     initStack(myStack);
 
-    cout << " 1. Pushing elements onto Stack: 10, 20, 30\n";
+    cout << "1. Pushing numbers onto Stack: 10, 20, 30\n";
     push(myStack, 10);
     push(myStack, 20);
     push(myStack, 30);
 
-    cout << " 2. Popping elements (LIFO Order):\n";
+    cout << "\n2. Popping from Stack (LIFO Order - Last In First Out):\n";
     while (!isStackEmpty(myStack)) {
-        cout << "    Popped: " << pop(myStack) << "\n";
+        cout << "   Popped: " << pop(myStack) << "\n";
     }
 
-    cout << "\n 3. Stack Application: Parentheses Balance Check:\n";
-    string expr1 = "(A + B) * (C - D)";
+    cout << "\n3. Checking Parentheses in Expressions:\n";
+    string expr1 = "((A + B) * (C - D))";
     string expr2 = "((A + B) * C";
-    cout << "    Expression \"" << expr1 << "\": " << (isBalancedParentheses(expr1) ? "BALANCED" : "UNBALANCED") << "\n";
-    cout << "    Expression \"" << expr2 << "\": " << (isBalancedParentheses(expr2) ? "BALANCED" : "UNBALANCED") << "\n";
+    cout << "   Expression \"" << expr1 << "\": " << (isBalancedParentheses(expr1) ? "BALANCED" : "UNBALANCED") << "\n";
+    cout << "   Expression \"" << expr2 << "\": " << (isBalancedParentheses(expr2) ? "BALANCED" : "UNBALANCED") << "\n";
 }
