@@ -1,0 +1,27 @@
+[
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Ibackend -c backend/student1.cpp",
+    "file": "backend/student1.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Ibackend -c backend/student2.cpp",
+    "file": "backend/student2.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Ibackend -c backend/student3.cpp",
+    "file": "backend/student3.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Ibackend -c backend/student4.cpp",
+    "file": "backend/student4.cpp"
+  },
+  {
+    "directory": "c:/Users/shekar/OneDrive/Desktop/C++ PROJECT",
+    "command": "C:/Users/shekar/tools/w64devkit/bin/g++.exe -std=c++17 -Ibackend -c backend/student5.cpp",
+    "file": "backend/student5.cpp"
+  }
+]

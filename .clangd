@@ -1,6 +1,0 @@
-CompileFlags:
-  Add:
-    - "-std=c++17"
-    - "-IC:/Users/shekar/OneDrive/Desktop/C++ PROJECT/BankManagementSystem"
-    - "-IC:/Users/shekar/tools/w64devkit/include"
-    - "-Wall"
